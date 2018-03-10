@@ -6,6 +6,7 @@
     <div class="col">
         <h1>SFPD Dispatch Metrics</h1>
         <canvas id="typeResponseTime" width="400" height="400"></canvas>
+        <canvas id="avgCallsPerHour" width="400" height="400"></canvas>
     </div>
 </div>
 
@@ -30,10 +31,6 @@ $.ajax({
 
 function createTypeRespTimeChart(data) {
     var ctx = $("#typeResponseTime");
-
-    console.log(data["avg_response_time"]["data"]);
-    //var parsed_data = data["avg_response_time"]["data"].map(e => moment(e.x, 'HH:mm'));
-    //console.log(parsed_data);
 
     var typeRespTimeChart = new Chart(ctx, {
         type: 'bar',
@@ -80,6 +77,42 @@ function createTypeRespTimeChart(data) {
                     scaleLabel: {
                         display: true,
                         labelString: 'Call Type Group'
+                    }
+                }]
+            }
+        }
+    });
+
+    var ctx = $("#avgCallsPerHour");
+
+    var avgCallsPerHourChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data["avg_calls_per_hour"]["labels"],
+            datasets: [{
+                label: 'Average Calls',
+                data: data["avg_calls_per_hour"]["data"],
+                backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                borderColor: 'rgba(255, 0, 0, 0.8)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Average Calls Per Hour of Day'
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Average Number of Calls'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Hour of Day'
                     }
                 }]
             }
