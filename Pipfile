@@ -7,11 +7,15 @@ name = "pypi"
 
 [dev-packages]
 
+pylint = "*"
 
 
 [packages]
 
-pylint = "*"
+django = "*"
+gunicorn = "*"
+django-heroku = "*"
+psycopg2 = "*"
 
 
 [requires]

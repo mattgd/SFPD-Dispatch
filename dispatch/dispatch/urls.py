@@ -15,7 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import url
+from metrics.views import Home, get_metrics
 
 urlpatterns = [
+    # Admin view
     path('admin/', admin.site.urls),
+
+    # Metrics views
+    url(r'^$', Home.as_view(), name='home'),
+    url(r'^api/metrics/$', get_metrics, name='api-metrics'),
 ]
