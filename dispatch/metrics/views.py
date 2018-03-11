@@ -23,9 +23,11 @@ def get_metrics(request):
             "data": []
         },
         "avg_calls_per_hour": {
+            "labels": [],
             "data": []
         }
     }
+
     calls = Call.objects.all()
     avg_resp_time_data = {}
     
@@ -37,7 +39,7 @@ def get_metrics(request):
     total_days = 0
 
     for call in calls:
-        # Collect average response time data
+        # Collect reponse time for average response time data
         if call.response_timestamp:
             response_time = call.response_timestamp - call.received_timestamp
             group = call.call_type_group if call.call_type_group else "Other"
@@ -51,16 +53,8 @@ def get_metrics(request):
                     "avg_time": response_time,
                     "total_calls": 1
                 }
-                
-            """
-            data.append(
-                {
-                    "x": call.call_type_group,
-                    "y": call.response_timestamp
-                }
-            )
-            """
         
+        # Collect received_timestamp data for avg_calls_per_hour metric
         if call.received_timestamp:
             received_time = call.received_timestamp
             hour = received_time.hour
@@ -71,21 +65,13 @@ def get_metrics(request):
                 days.append(day_key)
             
             avg_calls_per_hour[hour] += 1
-            
-
+        
+    # Calculate average response time per call type group
     for group in avg_resp_time_data:
         avg_resp_time_data[group]["avg_time"] = (avg_resp_time_data[group]["avg_time"]
             / avg_resp_time_data[group]["total_calls"])
         data["avg_response_time"]["groups"].append(group)
 
-        """
-        data["avg_response_time"]["data"].append(
-            {
-                "x": str(avg_resp_time_data[group]["avg_time"]),
-                "y": avg_resp_time_data[group]["total_calls"]
-            }
-        )
-        """
         seconds = avg_resp_time_data[group]["avg_time"].seconds
         data["avg_response_time"]["data"].append(
             round(seconds / 60, 2)
@@ -96,10 +82,9 @@ def get_metrics(request):
         data["avg_calls_per_hour"]["data"].append(round(avg_calls_per_hour[hour]
              / total_days, 2))
 
-    data["avg_calls_per_hour"]["labels"] = [
-        "12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM", "7 AM", "8 AM",
-        "9 AM", "10 AM", "11 AM", "12 PM", "1 PM", "2 PM", "3 PM", "4 PM",
-        "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM"
-    ]
+    # Create labels for average calls per hour
+    for i in range(0, 24):
+        hour = "{0}:00".format("0" + str(i) if i < 10 else i)
+        data["avg_calls_per_hour"]["labels"].append(hour)
 
     return JsonResponse(data, safe=False)
