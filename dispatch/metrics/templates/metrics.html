@@ -5,8 +5,11 @@
 <div class="row">
     <div class="col">
         <h1>SFPD Dispatch Metrics</h1>
+        <div id="map"></div>
+
         <canvas id="typeResponseTime" width="400" height="400"></canvas>
         <canvas id="avgCallsPerHour" width="400" height="400"></canvas>
+        <canvas id="unitTypeDistrib" width="400" height="400"></canvas>
     </div>
 </div>
 
@@ -20,9 +23,14 @@ $.ajax({
     method: "GET",
     url: endpoint,
     success: function(data) {
-        console.log(data);
         // Create the chart for call_type_group vs. response time
         createTypeRespTimeChart(data);
+
+        // Create the average calls per hour chart
+        createAvgCallsPerHourChart(data);
+
+        // Create the unit type distribution chart
+        createUnitTypeDistribChart(data);
     },
     error: function(resp) {
         console.log(resp);
@@ -82,7 +90,9 @@ function createTypeRespTimeChart(data) {
             }
         }
     });
+}
 
+function createAvgCallsPerHourChart(data) {
     var ctx = $("#avgCallsPerHour");
 
     var avgCallsPerHourChart = new Chart(ctx, {
@@ -131,6 +141,95 @@ function createTypeRespTimeChart(data) {
         }
     });
 }
+
+function createUnitTypeDistribChart(data) {
+    var ctx = $("#unitTypeDistrib");
+
+    var unitTypeDistribChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data["unit_type_distrib"]["labels"],
+            datasets: [{
+                label: 'Percentage of Calls by Unit Type',
+                data: data["unit_type_distrib"]["data"],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(23, 456, 78, 0.2)',
+                    'rgba(134, 17, 156, 0.2)',
+                    'rgba(203, 178, 43, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(23, 456, 78, 1)',
+                    'rgba(134, 17, 156, 1)',
+                    'rgba(203, 12, 43, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Percentage of Calls by Unit Type'
+            }
+        }
+    });
+}
+
+var map, heatmap;
+
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 13,
+        center: {lat: 37.775, lng: -122.434},
+        mapTypeId: 'satellite'
+    });
+
+    heatmap = new google.maps.visualization.HeatmapLayer({
+        data: getPoints(),
+        map: map
+    });
+}
+
+function changeGradient() {
+    var gradient = [
+        'rgba(0, 255, 255, 0)',
+        'rgba(0, 255, 255, 1)',
+        'rgba(0, 191, 255, 1)',
+        'rgba(0, 127, 255, 1)',
+        'rgba(0, 63, 255, 1)',
+        'rgba(0, 0, 255, 1)',
+        'rgba(0, 0, 223, 1)',
+        'rgba(0, 0, 191, 1)',
+        'rgba(0, 0, 159, 1)',
+        'rgba(0, 0, 127, 1)',
+        'rgba(63, 0, 91, 1)',
+        'rgba(127, 0, 63, 1)',
+        'rgba(191, 0, 31, 1)',
+        'rgba(255, 0, 0, 1)'
+    ]
+    heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+}
+
+// Heatmap data from calls
+function getPoints() {
+    return [
+    new google.maps.LatLng(37.782551, -122.445368),
+    ];
+}
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtE4eEKHGGOqQ7i6ewAeiaQ_TFQkydCfk&libraries=visualization&callback=initMap">
 </script>
 {% endblock %}
 

@@ -25,21 +25,30 @@ def get_metrics(request):
         "avg_calls_per_hour": {
             "labels": [],
             "data": []
-        }
+        },
+        "unit_type_distrib": {
+            "labels": [],
+            "data": []
+        },
+        "locations": []
     }
 
     calls = Call.objects.all()
+    total_calls = calls.count()
+
     avg_resp_time_data = {}
     
     avg_calls_per_hour = {}
     for i in range(0, 24):
         avg_calls_per_hour[i] = 0
-    days = []
 
+    days = []
     total_days = 0
 
+    unit_type_distrib = {}
+
     for call in calls:
-        # Collect reponse time for average response time data
+        # Collect response time for average response time metric
         if call.response_timestamp:
             response_time = call.response_timestamp - call.received_timestamp
             group = call.call_type_group if call.call_type_group else "Other"
@@ -65,6 +74,19 @@ def get_metrics(request):
                 days.append(day_key)
             
             avg_calls_per_hour[hour] += 1
+
+        # Collect unit type data for unit type distribution metric
+        if call.unit_type:
+            unit_type = call.unit_type
+
+            if unit_type in unit_type_distrib:
+                unit_type_distrib[unit_type] += 1
+            else:
+                unit_type_distrib[unit_type] = 1
+
+        # Collect locations
+        if call.location:
+            data["locations"].append(call.location)
         
     # Calculate average response time per call type group
     for group in avg_resp_time_data:
@@ -75,7 +97,7 @@ def get_metrics(request):
         seconds = avg_resp_time_data[group]["avg_time"].seconds
         data["avg_response_time"]["data"].append(
             round(seconds / 60, 2)
-        )  
+        )
 
     # Calculate average calls per hour
     for hour in avg_calls_per_hour:
@@ -86,5 +108,9 @@ def get_metrics(request):
     for i in range(0, 24):
         hour = "{0}:00".format("0" + str(i) if i < 10 else i)
         data["avg_calls_per_hour"]["labels"].append(hour)
+
+    for unit_type in unit_type_distrib:
+        data["unit_type_distrib"]["labels"] = list(unit_type_distrib.keys())
+        data["unit_type_distrib"]["data"] = [x / total_calls for x in unit_type_distrib.values()]
 
     return JsonResponse(data, safe=False)
