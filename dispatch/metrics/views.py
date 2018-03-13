@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
+from django.conf.urls.static import static
 
+from geopy.geocoders import Nominatim
+from django.contrib.gis import geos
 import datetime
 
 from .models import Call
@@ -11,7 +14,49 @@ class Home(View):
     Class-based view for the home page.
     """
     def get(self, request, *args, **kwargs):
-        return render(request, 'metrics.html', {})
+        # Extra CSS stylesheets to be loaded on the home page
+        css = []
+        # Extra JavaScript to be loaded on the home page
+        scripts = []
+
+        # Render the page
+        return render(
+            request,
+            'metrics.html',
+            {
+                'css': css,
+                'scripts': scripts
+            }
+        )
+
+def get_dispatch_type(request):
+    response = None
+    address = request.GET.get("address")
+
+    if address:
+        geolocator = Nominatim()
+        location = geolocator.geocode(address)
+
+        if location:
+            pass
+        else:
+            response = JsonResponse(
+                {
+                    'status': 'false',
+                    'message': 'Invalid address.'
+                },
+                status=404
+            )
+    else:
+        response = JsonResponse(
+            {
+                'status': 'false',
+                'message': 'No address provided.'
+            },
+            status=400
+        )
+
+    return response
 
 def get_metrics(request):
     """

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'metrics',
 ]
 
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'dispatch.urls'
@@ -80,7 +82,7 @@ WSGI_APPLICATION = 'dispatch.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': local_settings.LOCAL_APP_SETTINGS['DATABASE']['NAME'],
         'USER': local_settings.LOCAL_APP_SETTINGS['DATABASE']['USER'],
         'PASSWORD': local_settings.LOCAL_APP_SETTINGS['DATABASE']['PASSWORD'],

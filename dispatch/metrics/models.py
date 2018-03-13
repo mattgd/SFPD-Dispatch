@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.gis.db import models as gismodels
+from django.contrib.gis.geos import GEOSGeometry
 
 class Call(models.Model):
     """
@@ -40,3 +42,8 @@ class Call(models.Model):
     row_id = models.TextField()
     latitude = models.DecimalField(max_digits=12, decimal_places=10)
     longitude = models.DecimalField(max_digits=13, decimal_places=10)
+    point = gismodels.PointField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.point = GEOSGeometry('POINT({0} {1})'.format(self.longitude, self.latitude)) 
+        super(Call, self).save(*args, **kwargs)  
