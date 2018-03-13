@@ -29,15 +29,19 @@ class NearbyView(View):
                 time = request.POST.get("time")
                 if time:
                     time = datetime.strptime(time, "%H:%M:%S")
-                    
+
                     delta_hours = request.POST.get("delta_hours", 2)
                     delta_hours = timedelta(hours=delta_hours)
 
-                    time_range_calls = Call.objects.filter(
-                        received_timestamp__hour__gte=(time - delta_hours).hour,
-                                    received_timestamp__hour__lte=(time + delta_hours).hour)
+                    time_minus_delta = (time - delta_hours).hour
+                    time_plus_delta = (time + delta_hours).hour
 
-                    print(time_range_calls)                    
+                    min_time = min(time_minus_delta, time_plus_delta)
+                    max_time = max(time_minus_delta, time_plus_delta)
+
+                    time_range_calls = Call.objects.filter(
+                        received_timestamp__hour__gte=min_time,
+                                    received_timestamp__hour__lte=max_time)                 
 
                     nearby_calls = time_range_calls.filter(
                         point__distance_lte=(
