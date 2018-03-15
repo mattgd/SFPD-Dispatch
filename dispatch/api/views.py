@@ -20,9 +20,9 @@ class NearbyView(View):
 
             if location:
                 # Get radius from parameters, or set
-                # to 1 mile (1609.34 km) by default
-                radius = request.POST.get("radius", 1609.34)
-                limit = request.POST.get("limit", 50)
+                # to 1 mile (1609.34 m) by default
+                radius = float(request.POST.get("radius", 1.0)) * 1609.34
+                #limit = request.POST.get("limit", 50)
 
                 source_location = geos.fromstr('POINT({0} {1})'.format(location.longitude, location.latitude))
                 desired_radius = {'m': radius}
