@@ -25,7 +25,7 @@ urlpatterns = [
 
     # Metrics views
     url(r'^$', Home.as_view(), name='home'),
-    url(r'^heatmaps$', Heatmaps.as_view(), name='home'),
+    url(r'^heatmaps$', Heatmaps.as_view(), name='heatmaps'),
     url(r'^api/metrics/$', get_metrics, name='api-metrics'),
     url(r'^api/calls/address-frequency$', AddressFrequency.as_view(), name='api-address-frequency'),
     url(r'^api/calls/nearby$', NearbyView.as_view(), name='api-calls-nearby'),
