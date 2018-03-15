@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
+from django.db.models import Count
 from metrics.models import Call
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
@@ -102,3 +103,87 @@ class NearbyView(View):
             )
 
         return response
+
+class LongestDispatch(View):
+
+    def get(self, request):
+        calls = Call.objects.extra(
+            select={
+                'dispatch_time': 'dispatch_timestamp - received_timestamp'
+            }
+        ).order_by('-dispatch_time')[:250]
+
+        parsed_calls = []
+        for call in calls:
+            parsed_calls.append(
+                {
+                    "call_number": call.call_number,
+                    "address": call.address,
+                    "lat": call.latitude,
+                    "lng": call.longitude,
+                    "dispatch_time": str(call.dispatch_time),
+                    "call_type": call.call_type,
+                    "count": 1
+                }
+            )
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'data': parsed_calls
+            }
+        )
+
+class AddressFrequency(View):
+
+    def get(self, request):
+        """
+        Retrieves the frequency of all addresses in the calls database.
+        """
+        addresses = Call.objects.values('address', 'latitude', 'longitude').annotate(count=Count('address')).order_by('-count')
+        data = []
+
+        for address in addresses:
+            data.append(
+                {
+                    "address": address["address"],
+                    "count": address["count"],
+                    "lat": address["latitude"],
+                    "lng": address["longitude"]
+                }
+            )
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'data': data
+            }
+        )
+
+class AllCalls(View):
+
+    def get(self, request):
+        """
+        Returns all Calls in the database.
+        """
+        calls = Call.objects.all()
+
+        print()
+        data = []
+
+        for call in calls:
+            fields = call.__dict__
+            call_data = {}
+            
+            for field, value in fields.items():
+                if field != '_state' and field != 'point':
+                    call_data[field] = value
+
+            data.append(call_data)
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'calls': data
+            }
+        )

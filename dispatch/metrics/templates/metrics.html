@@ -10,25 +10,46 @@
 </header>
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm">
-            <canvas id="typeResponseTime" height="300" width="auto"></canvas>
-        </div>
-        <div class="col-sm">
-            <canvas id="avgCallsPerHour" height="300" width="auto"></canvas>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm">
-            <canvas id="unitTypeDistrib" height="300" width="auto"></canvas>
-        </div>
-    </div>
+    <!-- Metric charts HTML/JavaScript -->
+    {% include 'charts.html' %}
 
     <div class="row">
         <div class="col-sm">
-            <div id="map"></div>
+            <h3>Dispatch Time Heatmap</h3>
+            <div class="map" id="dispatchTimeMap"></div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm">
+            <table class="table table-striped" id="dispatchTimeTable">
+                <thead>
+                    <tr>
+                        <td>
+                            Call Number
+                        </td>
+                        <td>
+                            Address
+                        </td>
+                        <td>
+                            Dispatch Time (hh:mm:ss)
+                        </td>
+                        <td>
+                            Call Type
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <h3>Address Frequency Heatmap</h3>
+            <div class="map" id="addressFreqMap"></div>
+        </div>
+    </div>
+    
 
     <div class="row">
         <div class="col-sm">
@@ -57,179 +78,10 @@
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript" src="{% static 'js/Chart.bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/metrics_charts.js' %}"></script>
 <script>
-var endpoint = '/api/metrics/';
-
-$.ajax({
-    method: "GET",
-    url: endpoint,
-    success: function(data) {
-        // Create the chart for call_type_group vs. response time
-        createTypeRespTimeChart(data);
-
-        // Create the average calls per hour chart
-        createAvgCallsPerHourChart(data);
-
-        // Create the unit type distribution chart
-        createUnitTypeDistribChart(data);
-    },
-    error: function(resp) {
-        console.log(resp);
-    }
-})
-
-function createTypeRespTimeChart(data) {
-    var ctx = $("#typeResponseTime");
-
-    var typeRespTimeChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data["avg_response_time"]["groups"],
-            datasets: [{
-                label: 'Average Response Time',
-                data: data["avg_response_time"]["data"],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255,99,132,1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Average Response Time Per Call Type Group'
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero:true
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Average Response Time (minutes)'
-                    }
-                }],
-                xAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Call Type Group'
-                    }
-                }]
-            }
-        }
-    });
-}
-
-function createAvgCallsPerHourChart(data) {
-    var ctx = $("#avgCallsPerHour");
-
-    var avgCallsPerHourChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data["avg_calls_per_hour"]["labels"],
-            datasets: [{
-                label: 'Average Calls',
-                data: data["avg_calls_per_hour"]["data"],
-                backgroundColor: 'rgba(255, 0, 0, 0.2)',
-                borderColor: 'rgba(255, 0, 0, 0.8)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Average Calls Per Hour of Day'
-            },
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Average Number of Calls'
-                    }
-                }],
-                xAxes:[{
-                    type: 'time',
-                    time: {
-                        format: "HH:mm",
-                        unit: 'hour',
-                        unitStepSize: 1,
-                        displayFormats: {
-                            'minute': 'HH:mm', 
-                            'hour': 'HH:mm', 
-                            min: '00:00',
-                            max: '23:59'
-                        },
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Hour of Day'
-                    }
-                }],
-            }
-        }
-    });
-}
-
-function createUnitTypeDistribChart(data) {
-    var ctx = $("#unitTypeDistrib");
-
-    var unitTypeDistribChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: data["unit_type_distrib"]["labels"],
-            datasets: [{
-                label: 'Percentage of Calls by Unit Type',
-                data: data["unit_type_distrib"]["data"],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(23, 456, 78, 0.2)',
-                    'rgba(134, 17, 156, 0.2)',
-                    'rgba(203, 178, 43, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255,99,132,1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(23, 456, 78, 1)',
-                    'rgba(134, 17, 156, 1)',
-                    'rgba(203, 12, 43, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Percentage of Calls by Unit Type'
-            }
-        }
-    });
-}
-
 $("#dispatchTypeForm").submit(function(e) {
-    //var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].getAttribute("value");
-    endpoint = '/api/calls/nearby';
+    var endpoint = '/api/calls/nearby';
     $.ajax({
         method: "POST",
         url: endpoint,
@@ -248,8 +100,6 @@ $("#dispatchTypeForm").submit(function(e) {
     e.preventDefault();
 });
 
-
-
 function getNearbyCalls(data) {
     data = {
 
@@ -257,49 +107,8 @@ function getNearbyCalls(data) {
     var ctx = $("#unitTypeDistrib");
 }
 
-var map, heatmap;
-
-function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 13,
-        center: {lat: 37.775, lng: -122.434},
-        mapTypeId: 'satellite'
-    });
-
-    heatmap = new google.maps.visualization.HeatmapLayer({
-        data: getPoints(),
-        map: map
-    });
-}
-
-function changeGradient() {
-    var gradient = [
-        'rgba(0, 255, 255, 0)',
-        'rgba(0, 255, 255, 1)',
-        'rgba(0, 191, 255, 1)',
-        'rgba(0, 127, 255, 1)',
-        'rgba(0, 63, 255, 1)',
-        'rgba(0, 0, 255, 1)',
-        'rgba(0, 0, 223, 1)',
-        'rgba(0, 0, 191, 1)',
-        'rgba(0, 0, 159, 1)',
-        'rgba(0, 0, 127, 1)',
-        'rgba(63, 0, 91, 1)',
-        'rgba(127, 0, 63, 1)',
-        'rgba(191, 0, 31, 1)',
-        'rgba(255, 0, 0, 1)'
-    ]
-    heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
-}
-
-// Heatmap data from calls
-function getPoints() {
-    return [
-    new google.maps.LatLng(37.782551, -122.445368),
-    ];
-}
+var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
 </script>
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtE4eEKHGGOqQ7i6ewAeiaQ_TFQkydCfk&libraries=visualization&callback=initMap">
-</script>
+<script src="{% static 'js/metrics_heatmaps.js' %}"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtE4eEKHGGOqQ7i6ewAeiaQ_TFQkydCfk&libraries=visualization&callback=initHeatmaps"></script>
 {% endblock %}
