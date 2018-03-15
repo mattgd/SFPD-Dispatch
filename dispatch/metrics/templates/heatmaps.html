@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header>
+    <div class="row">
+        <div class="col">
+            <h1>SFPD Dispatch - Heatmaps</h1>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <h3>Dispatch Time Heatmap</h3>
+            <div class="map" id="dispatchTimeMap"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <table class="table table-striped" id="dispatchTimeTable">
+                <thead>
+                    <tr>
+                        <td>
+                            Call Number
+                        </td>
+                        <td>
+                            Address
+                        </td>
+                        <td>
+                            Dispatch Time (hh:mm:ss)
+                        </td>
+                        <td>
+                            Call Type
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <h3>Address Frequency Heatmap</h3>
+            <div class="map" id="addressFreqMap"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% load static %}
+{% block scripts %}
+{{ block.super }}
+<script>
+var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
+</script>
+<script src="{% static 'js/metrics_heatmaps.js' %}"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtE4eEKHGGOqQ7i6ewAeiaQ_TFQkydCfk&libraries=visualization&callback=initHeatmaps"></script>
+{% endblock %}

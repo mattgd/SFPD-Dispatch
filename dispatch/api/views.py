@@ -140,18 +140,22 @@ class AddressFrequency(View):
         """
         Retrieves the frequency of all addresses in the calls database.
         """
+        cutoff_value = request.GET.get('cutoff_value', 4)
         addresses = Call.objects.values('address', 'latitude', 'longitude').annotate(count=Count('address')).order_by('-count')
         data = []
 
         for address in addresses:
-            data.append(
-                {
-                    "address": address["address"],
-                    "count": address["count"],
-                    "lat": address["latitude"],
-                    "lng": address["longitude"]
-                }
-            )
+            count = address["count"]
+            
+            if count >= cutoff_value:
+                data.append(
+                    {
+                        "address": address["address"],
+                        "count": count,
+                        "lat": address["latitude"],
+                        "lng": address["longitude"]
+                    }
+                )
 
         return JsonResponse(
             {

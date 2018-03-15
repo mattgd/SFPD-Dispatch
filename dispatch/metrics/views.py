@@ -29,6 +29,14 @@ class Home(View):
             }
         )
 
+class Heatmaps(View):
+    """
+    Class-based view for the heatmaps page.
+    """
+    def get(self, request, *args, **kwargs):
+        # Render the page
+        return render(request, 'heatmaps.html')
+
 def get_dispatch_type(request):
     response = None
     address = request.GET.get("address")

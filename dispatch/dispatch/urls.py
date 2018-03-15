@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url
-from metrics.views import Home, get_metrics
+from metrics.views import Home, Heatmaps, get_metrics
 from api.views import AddressFrequency, AllCalls, NearbyView, LongestDispatch
 
 urlpatterns = [
@@ -25,6 +25,7 @@ urlpatterns = [
 
     # Metrics views
     url(r'^$', Home.as_view(), name='home'),
+    url(r'^heatmaps$', Heatmaps.as_view(), name='home'),
     url(r'^api/metrics/$', get_metrics, name='api-metrics'),
     url(r'^api/calls/address-frequency$', AddressFrequency.as_view(), name='api-address-frequency'),
     url(r'^api/calls/nearby$', NearbyView.as_view(), name='api-calls-nearby'),
