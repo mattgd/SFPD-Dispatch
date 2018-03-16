@@ -1,1 +1,1 @@
-web: gunicorn dispatch.dispatch.wsgi
+web: sh -c 'cd dispatch && gunicorn dispatch.wsgi'
