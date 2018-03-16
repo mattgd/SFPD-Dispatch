@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import django_heroku
-from . import local_settings
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,10 +21,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = local_settings.SECRET_KEY
+SECRET_KEY = '2)-)6=+))0^j06+l$1kxx5w_sod&fxdt2o21336hv&+p$w0gb&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = local_settings.DEBUG
+DEBUG = os.environ['DJANGO_DEBUG']
 
 ALLOWED_HOSTS = []
 
@@ -83,11 +82,11 @@ WSGI_APPLICATION = 'dispatch.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': local_settings.LOCAL_APP_SETTINGS['DATABASE']['NAME'],
-        'USER': local_settings.LOCAL_APP_SETTINGS['DATABASE']['USER'],
-        'PASSWORD': local_settings.LOCAL_APP_SETTINGS['DATABASE']['PASSWORD'],
-        'HOST': local_settings.LOCAL_APP_SETTINGS['DATABASE']['HOST'],
-        'PORT': local_settings.LOCAL_APP_SETTINGS['DATABASE']['PORT'],
+        'NAME': os.environ['DATABASE_NAME'],
+        'USER': os.environ['DATABASE_USER'],
+        'PASSWORD': os.environ['DATABASE_PASS'],
+        'HOST': os.environ['DATABASE_HOST'],
+        'PORT': os.environ['DATABASE_PORT'],
     }
 }
 
