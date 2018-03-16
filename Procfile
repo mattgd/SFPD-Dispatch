@@ -1,1 +1,1 @@
-web: gunicorn dispatch.wsgi
+web: gunicorn dispatch.dispatch.wsgi
