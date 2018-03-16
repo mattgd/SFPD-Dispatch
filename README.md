@@ -17,3 +17,8 @@ GRANT ALL PRIVILEGES ON DATABASE dispatch TO dispatchuser;
 
 On Heroku, login to bash using `heroku run bash` then navigate to `/dispatch`
 and type: `python manage.py loaddata sfpd_dispatch_data_subset.json`.
+
+## Heroku Geo Buildpack
+
+The current buildpack used to support the django-geo functionality is:
+`https://github.com/dschep/heroku-geo-buildpack.git`
