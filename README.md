@@ -14,4 +14,6 @@ GRANT ALL PRIVILEGES ON DATABASE dispatch TO dispatchuser;
 ```
 
 ### Uploading Data Using Fixtures
-`python manage.py loaddata sfpd_dispatch_data_subset.json`
+
+On Heroku, login to bash using `heroku run bash` then navigate to `/dispatch`
+and type: `python manage.py loaddata sfpd_dispatch_data_subset.json`.
