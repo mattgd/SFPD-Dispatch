@@ -140,8 +140,9 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
+# GeoDjango library paths for Heroku
 GDAL_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgdal.so'
-GEOS_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgeos.so'
+GEOS_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgeos_c.so'
 
 django_heroku.settings(locals())
 
