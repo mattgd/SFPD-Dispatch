@@ -141,11 +141,12 @@ STATICFILES_FINDERS = (
 )
 
 # GeoDjango library paths for Heroku
-GDAL_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgdal.so'
-GEOS_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgeos_c.so'
+GDAL_LIBRARY_PATH = os.environ['GDAL_LIBRARY_PATH'] if 'GDAL_LIBRARY_PATH' in os.environ else None
+GEOS_LIBRARY_PATH = os.environ['GEOS_LIBRARY_PATH'] if 'GEOS_LIBRARY_PATH' in os.environ else None
 
 django_heroku.settings(locals())
 
 # Update the database information for Heroku
-DATABASES['default'] = dj_database_url.config()
-DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+if 'UPDATE_DATABASE_ENGINE' in os.environ and os.environ['UPDATE_DATABASE_ENGINE']:
+    DATABASES['default'] = dj_database_url.config()
+    DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
