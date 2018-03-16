@@ -12,3 +12,6 @@ ALTER ROLE dispatchuser SET timezone TO 'UTC';
 
 GRANT ALL PRIVILEGES ON DATABASE dispatch TO dispatchuser;
 ```
+
+### Uploading Data Using Fixtures
+`python manage.py loaddata sfpd_dispatch_data_subset.json`
