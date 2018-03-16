@@ -139,4 +139,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
+GDAL_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgdal.so'
+
 django_heroku.settings(locals())
