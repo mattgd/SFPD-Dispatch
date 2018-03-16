@@ -141,6 +141,7 @@ STATICFILES_FINDERS = (
 )
 
 GDAL_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgdal.so'
+GEOS_LIBRARY_PATH = '/app/.heroku/vendor/lib/libgeos.so'
 
 django_heroku.settings(locals())
 
