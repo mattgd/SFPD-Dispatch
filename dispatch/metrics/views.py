@@ -14,20 +14,8 @@ class Home(View):
     Class-based view for the home page.
     """
     def get(self, request, *args, **kwargs):
-        # Extra CSS stylesheets to be loaded on the home page
-        css = []
-        # Extra JavaScript to be loaded on the home page
-        scripts = []
-
         # Render the page
-        return render(
-            request,
-            'metrics.html',
-            {
-                'css': css,
-                'scripts': scripts
-            }
-        )
+        return render(request, 'metrics.html')
 
 class Heatmaps(View):
     """
