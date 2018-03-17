@@ -20,6 +20,7 @@
                 Show Controls
             </label>
         </div>
+        <hr />
         <div class="map" id="dispatchTimeMap"></div>
     </div>
 </div>
@@ -31,6 +32,10 @@
             each unique address appears in the data is calculated along with the 
             average duration of time between when the call was received and when
             a unit was dispatched.
+        </p>
+        <p>
+            Addresses with more than a few calls are highlighted in yellow
+            and address with several calls are highlighted in red.
         </p>
 
         <table class="table table-striped" id="dispatchTimeTable">
@@ -45,9 +50,6 @@
                     <td>
                         Number of Calls
                     </td>
-                    <td>
-                        Call Type
-                    </td>
                 </tr>
             </thead>
             <tbody>
@@ -58,6 +60,7 @@
 <div class="row">
     <div class="col-sm section-card">
         <h3>Address Frequency Heatmap</h3>
+        <hr />
         <div class="map" id="addressFreqMap"></div>
     </div>
 </div>
@@ -66,6 +69,7 @@
 {% load static %}
 {% block scripts %}
 {{ block.super }}
+<script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
 <script>
 var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
 </script>

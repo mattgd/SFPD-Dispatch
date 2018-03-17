@@ -1,3 +1,7 @@
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}  
 html, body {
     font-family: 'Libre Franklin', sans-serif !important;
     text-rendering: optimizeLegibility;
@@ -50,4 +54,27 @@ table.table thead tr td {
 }
 .page-header h2 {
     margin-bottom: 0;
+}
+/* Pagination styling */
+.paginationjs ul {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+}
+.paginationjs ul li {
+    display: inline-block;
+}
+.paginationjs ul li a {
+    border: 1px solid #dee2e6;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+}
+.paginationjs ul li:first-child a {
+    margin-left: 0;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+.paginationjs ul li:last-child a {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
 }

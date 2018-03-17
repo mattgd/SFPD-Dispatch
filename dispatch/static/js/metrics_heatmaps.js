@@ -21,13 +21,34 @@ function initHeatmaps() {
             addHeatmapLayer(dispatchTimeMap, addressFreqHeatmap, data);
 
             // Add the call data the dispatch time table
+            /*
             var max = Math.min(data.data.length, 30);
             for (var i = 0; i < max; i++) {
                 call = data.data[i];
 
                 // Add the call data to the dispatch time table
                 addToDataTable("dispatchTimeTable", call);
-            }
+            }*/
+
+            $('#dispatchTimeTable').pagination({
+                dataSource: data,
+                locator: 'data',
+                pageSize: 20,
+                prevText: 'Previous',
+                nextText: 'Next',
+                callback: function(data, pagination) {
+                    var htmlContent = '';
+
+                    for (var i = 0; i < data.length; i++) {
+                        call = data[i];
+        
+                        // Add the call data to the table
+                        htmlContent += createTableDataRow(call);
+                    }
+
+                    $('#dispatchTimeTable').find('tbody').html(htmlContent);
+                }
+            });
 
             $('#dispatchTimeMapShowControls').change(function() {
                 console.log("here");
@@ -261,14 +282,25 @@ function getDarkMap() {
     );   
 }
 
-function addToDataTable(tableName, call) {
-    var context = '<tr' + (call.count > 2 ? ' class="bg-warning">' : '>');
-    $('#' + tableName + ' > tbody:last-child').append(
+function createTableDataRow(call) {
+    var count = call.count;
+    var context;
+
+    // Calculate context class for table row based on call count
+    if (count > 10) {
+        context = '<tr' + (call.count > 10 ? ' class="bg-danger">' : '>');
+    } else if (count > 3) {
+        context = '<tr' + (call.count > 2 ? ' class="bg-warning">' : '>');
+    } else {
+        context = '<tr>'
+    }
+
+    var html = 
         context +
         '<td>' + call.address + '</td>' +
         '<td>' + call.avg_dispatch_time + '</td>' +
         '<td>' + call.count + '</td>' +
-        '<td>' + call.call_type + '</td>' +
-        '</tr>'
-    );
+        '</tr>';
+
+    return html;
 }
