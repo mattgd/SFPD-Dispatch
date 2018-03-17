@@ -54,10 +54,6 @@ function createTypeRespTimeChart(data) {
             }]
         },
         options: {
-            title: {
-                display: true,
-                text: 'Average Response Time Per Call Type Group'
-            },
             scales: {
                 yAxes: [{
                     ticks: {
@@ -72,9 +68,24 @@ function createTypeRespTimeChart(data) {
                     scaleLabel: {
                         display: true,
                         labelString: 'Call Type Group'
+                    },
+                    ticks: {
+                        autoSkip: false
                     }
                 }]
-            }
+            },
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                callbacks: {
+                    label: function(tooltipItems, data) { 
+                        return tooltipItems.yLabel + ' mins';
+                    }
+                }
+            },
+            legend: {
+                display: false
+            },
         }
     });
 }
@@ -100,10 +111,6 @@ function createAvgCallsPerHourChart(data) {
             }]
         },
         options: {
-            title: {
-                display: true,
-                text: 'Average Calls Per Hour of Day'
-            },
             scales: {
                 yAxes: [{
                     scaleLabel: {
@@ -127,9 +134,21 @@ function createAvgCallsPerHourChart(data) {
                     scaleLabel: {
                         display: true,
                         labelString: 'Hour of Day'
+                    },
+                    ticks: {
+                        autoSkip: false
                     }
                 }],
-            }
+            },
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                callbacks: {
+                    label: function(tooltipItems, data) { 
+                        return tooltipItems.yLabel + ' calls';
+                    }
+                }
+            },
         }
     });
 }
@@ -143,7 +162,7 @@ function createUnitTypeDistribChart(data) {
 
     // Create the Chart.js chart object.
     var unitTypeDistribChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'polarArea',
         data: {
             labels: data["unit_type_distrib"]["labels"],
             datasets: [{
@@ -173,12 +192,6 @@ function createUnitTypeDistribChart(data) {
                 ],
                 borderWidth: 1
             }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Percentage of Calls by Unit Type'
-            }
         }
     });
 }

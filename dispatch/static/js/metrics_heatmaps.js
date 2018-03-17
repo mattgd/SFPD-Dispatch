@@ -4,7 +4,8 @@ function initHeatmaps() {
         zoom: 13,
         center: {lat: 37.775, lng: -122.434},
         gestureHandling: 'greedy',
-        mapTypeId: 'roadmap'
+        mapTypeId: 'roadmap',
+        disableDefaultUI: true
     };
 
     dispatchTimeMap = new google.maps.Map(document.getElementById('dispatchTimeMap'), mapSettings);
@@ -69,33 +70,10 @@ function addHeatmapLayer(map, heatmap, data) {
         data: points,
         map: map
     });
-    
-    // Change the gradient colors
-    changeGradient(heatmap);
 
     // Set the custom map type
     map.mapTypes.set('dark_map', getDarkMap());
     map.setMapTypeId('dark_map');
-}
-
-function changeGradient(heatmap) {
-    var gradient = [
-        'rgba(0, 255, 255, 0)',
-        'rgba(0, 255, 255, 1)',
-        'rgba(0, 191, 255, 1)',
-        'rgba(0, 127, 255, 1)',
-        'rgba(0, 63, 255, 1)',
-        'rgba(0, 0, 255, 1)',
-        'rgba(0, 0, 223, 1)',
-        'rgba(0, 0, 191, 1)',
-        'rgba(0, 0, 159, 1)',
-        'rgba(0, 0, 127, 1)',
-        'rgba(63, 0, 91, 1)',
-        'rgba(127, 0, 63, 1)',
-        'rgba(191, 0, 31, 1)',
-        'rgba(255, 0, 0, 1)'
-    ]
-    heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
 }
 
 function getDarkMap() {

@@ -1,48 +1,50 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
-    <div class="col">
+<div class="row page-header">
+    <div class="col section-card">
         <h2>Heatmaps</h2>
     </div>
 </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm">
-            <h3>Dispatch Time Heatmap</h3>
-            <div class="map" id="dispatchTimeMap"></div>
-        </div>
+<div class="row">
+    <div class="col-sm section-card">
+        <h3>Dispatch Time Heatmap</h3>
+        <p>
+            Heatmap showing the longest average dispatch times with shortest in
+            green and longest in red.
+        </p>
+        <div class="map" id="dispatchTimeMap"></div>
     </div>
-    <div class="row">
-        <div class="col-sm">
-            <table class="table table-striped" id="dispatchTimeTable">
-                <thead>
-                    <tr>
-                        <td>
-                            Call Number
-                        </td>
-                        <td>
-                            Address
-                        </td>
-                        <td>
-                            Dispatch Time (hh:mm:ss)
-                        </td>
-                        <td>
-                            Call Type
-                        </td>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
+</div>
+<div class="row">
+    <div class="col-sm">
+        <table class="table table-striped" id="dispatchTimeTable">
+            <thead>
+                <tr>
+                    <td>
+                        Call Number
+                    </td>
+                    <td>
+                        Address
+                    </td>
+                    <td>
+                        Dispatch Time (hh:mm:ss)
+                    </td>
+                    <td>
+                        Call Type
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
-    <div class="row">
-        <div class="col-sm">
-            <h3>Address Frequency Heatmap</h3>
-            <div class="map" id="addressFreqMap"></div>
-        </div>
+</div>
+<div class="row">
+    <div class="col-sm section-card">
+        <h3>Address Frequency Heatmap</h3>
+        <div class="map" id="addressFreqMap"></div>
     </div>
 </div>
 {% endblock %}

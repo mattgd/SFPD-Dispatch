@@ -111,7 +111,7 @@ class LongestDispatch(View):
             select={
                 'dispatch_time': 'dispatch_timestamp - received_timestamp'
             }
-        ).order_by('-dispatch_time')[:250]
+        ).order_by('-dispatch_time')[:500]
 
         parsed_calls = []
         for call in calls:

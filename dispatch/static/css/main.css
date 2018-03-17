@@ -1,6 +1,7 @@
 html, body {
-    font-family: 'IBM Plex Sans', sans-serif !important;
+    font-family: 'Libre Franklin', sans-serif !important;
     text-rendering: optimizeLegibility;
+    background: #EEE !important;
 }
 h1, h2, h3, h4, h5, h6, p {
     color: #222;
@@ -8,7 +9,8 @@ h1, h2, h3, h4, h5, h6, p {
 header {
     text-align: center;
     padding-top: 25px;
-    background: #EEE;
+    background: #333;
+    color: #FFF;
     border-bottom: 3px solid #DEDEDE;
 }
 header h1 {
@@ -17,6 +19,7 @@ header h1 {
 }
 header p {
     font-style: italic;
+    color: #FFF;
 }
 header .nav {
     text-align: center;
@@ -30,4 +33,21 @@ header .nav {
 table.table thead tr td {
     font-weight: bold;
     text-transform: uppercase;
+}
+.section-card {
+    background: #FFF;
+    padding: 15px;
+    margin: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+.section-card h3 {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #666;
+}
+.page-header .section-card {
+    text-align: center;
+}
+.page-header h2 {
+    margin-bottom: 0;
 }
