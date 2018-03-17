@@ -1,5 +1,9 @@
-
+/**
+ * Initializes the heatmap Google Maps objects.
+ * This function is called via the Google Maps API load callback.
+ */
 function initHeatmaps() {
+    // Settings for the Google Map object
     var mapSettings = {
         zoom: 13,
         center: {lat: 37.775, lng: -122.434},
@@ -8,6 +12,7 @@ function initHeatmaps() {
         zoomControl: true
     };
 
+    // Heatmap DOM elements
     dispatchTimeMap = new google.maps.Map(document.getElementById('dispatchTimeMap'), mapSettings);
     addressFreqMap = new google.maps.Map(document.getElementById('addressFreqMap'), mapSettings);
     
@@ -67,6 +72,7 @@ function initHeatmaps() {
 function addHeatmapLayer(map, heatmap, data) {
     var points = Array();
 
+    // Creates HeatmapLayer WeightedLocation objects for each call in data
     for (var i = 0; i < data.data.length; i++) {
         point = data.data[i];
 
@@ -98,6 +104,11 @@ function setDarkMark(map) {
     map.setMapTypeId('dark_map');
 }
 
+/**
+ * Returns a new StyledMapType object which represents the
+ * custom dark map type for the heatmaps.
+ * @returns StyledMapType object.
+ */
 function getDarkMap() {
     return new google.maps.StyledMapType(
         [
@@ -271,6 +282,12 @@ function getDarkMap() {
     );   
 }
 
+/**
+ * Creates a data table row using the provided call and columns.
+ * @param {*} call The call to extract data from.
+ * @param {*} cols The table columns to fill.
+ * @param {*} doHighlight Boolean value for whether or not to highlight large values.
+ */
 function createTableDataRow(call, cols, doHighlight) {
     var count = call.count;
     var context = '<tr>';

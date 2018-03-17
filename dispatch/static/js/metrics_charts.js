@@ -121,7 +121,7 @@ function createAvgCallsPerHourChart(data) {
                 xAxes:[{
                     type: 'time',
                     time: {
-                        format: "HH:mm",
+                        parser: "HH:mm",
                         unit: 'hour',
                         unitStepSize: 1,
                         displayFormats: {
