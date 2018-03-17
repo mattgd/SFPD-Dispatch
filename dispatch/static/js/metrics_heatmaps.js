@@ -3,94 +3,78 @@ function initHeatmaps() {
     var mapSettings = {
         zoom: 13,
         center: {lat: 37.775, lng: -122.434},
-        gestureHandling: 'greedy',
         mapTypeId: 'roadmap',
-        disableDefaultUI: true
+        disableDefaultUI: true,
+        zoomControl: true
     };
 
     dispatchTimeMap = new google.maps.Map(document.getElementById('dispatchTimeMap'), mapSettings);
     addressFreqMap = new google.maps.Map(document.getElementById('addressFreqMap'), mapSettings);
     
-    // Initialize the longest-dispatch heatmap
+    // Retrieves the longest average dispatch time data,
+    // and initializes the longest-dispatch heatmap.
     endpoint = '/api/calls/longest-dispatch';
     $.ajax({
         method: 'GET',
         url: endpoint,
         success: function(data) {
+             // Set the custom map type
+             setDarkMark(dispatchTimeMap);
+
             // Add the heatmap layer to the map
             addHeatmapLayer(dispatchTimeMap, addressFreqHeatmap, data);
 
-            // Add the call data the dispatch time table
-            /*
-            var max = Math.min(data.data.length, 30);
-            for (var i = 0; i < max; i++) {
-                call = data.data[i];
-
-                // Add the call data to the dispatch time table
-                addToDataTable("dispatchTimeTable", call);
-            }*/
-
-            $('#dispatchTimeTable').pagination({
-                dataSource: data,
-                locator: 'data',
-                pageSize: 20,
-                prevText: 'Previous',
-                nextText: 'Next',
-                callback: function(data, pagination) {
-                    var htmlContent = '';
-
-                    for (var i = 0; i < data.length; i++) {
-                        call = data[i];
-        
-                        // Add the call data to the table
-                        htmlContent += createTableDataRow(call);
-                    }
-
-                    $('#dispatchTimeTable').find('tbody').html(htmlContent);
-                }
-            });
-
-            $('#dispatchTimeMapShowControls').change(function() {
-                console.log("here");
-                if($(this).is(":checked")) {
-                    dispatchTimeMap.disableDefaultUI = false;
-                } else {
-                    dispatchTimeMap.disableDefaultUI = true;
-                }    
-            });
+            // Setup pagination for the average dispatch time table
+            // The columns in the table
+            var cols = ['address', 'avg_dispatch_time', 'count'];
+            setupPagination($('#dispatchTimeTable'), data, cols, true);
         },
         error: function(resp) {
             console.log("An error occured when retrieving longest dispatch data.");
-            //console.log(resp);
         }
     });
 
+    // Retrieves the address frequency data the for dispatch frequency heatmap
     endpoint = '/api/calls/address-frequency';
     $.ajax({
         method: 'GET',
         url: endpoint,
         success: function(data) {
-            //console.log(data);
+            // Set the custom map type
+            setDarkMark(addressFreqMap);
+
             // Add the heatmap layer to the map
             addHeatmapLayer(addressFreqMap, addressFreqHeatmap, data);
+
+            // Setup pagination for the dispatch call address frequency table
+            // The columns in the table
+            var cols = ['address', 'count'];
+            setupPagination($('#addressFreqTable'), data, cols);
         },
         error: function(resp) {
             console.log("An error occured when retrieving longest dispatch data.");
-            //console.log(resp);
         }
     });
 }
 
+/**
+ * Created WeightedLocation objects from the API data for the heatmap layer
+ * and adds the heatmap layer to the map.
+ * @param {*} map The map to add the heatmap layer to.
+ * @param {*} heatmap The heatmap layer instance.
+ * @param {*} data The data to use as points.
+ */
 function addHeatmapLayer(map, heatmap, data) {
     var points = Array();
 
     for (var i = 0; i < data.data.length; i++) {
         point = data.data[i];
+
         if (point.count !== undefined) {
             points.push(
                 {
                     location: new google.maps.LatLng(point.lat, point.lng),
-                    weight: 5 * point.count
+                    weight: point.count
                 }
             )
         } else {
@@ -103,8 +87,13 @@ function addHeatmapLayer(map, heatmap, data) {
         data: points,
         map: map
     });
+}
 
-    // Set the custom map type
+/**
+ * Sets the custom dark map type.
+ * @param {*} map The map to set the type for.
+ */
+function setDarkMark(map) {
     map.mapTypes.set('dark_map', getDarkMap());
     map.setMapTypeId('dark_map');
 }
@@ -282,25 +271,60 @@ function getDarkMap() {
     );   
 }
 
-function createTableDataRow(call) {
+function createTableDataRow(call, cols, doHighlight) {
     var count = call.count;
-    var context;
+    var context = '<tr>';
 
-    // Calculate context class for table row based on call count
-    if (count > 10) {
-        context = '<tr' + (call.count > 10 ? ' class="bg-danger">' : '>');
-    } else if (count > 3) {
-        context = '<tr' + (call.count > 2 ? ' class="bg-warning">' : '>');
-    } else {
-        context = '<tr>'
+    // Highlights rows based on count
+    if (doHighlight) {
+        // Calculate context class for table row based on call count
+        if (count > 10) {
+            context = '<tr' + (call.count > 10 ? ' class="bg-danger">' : '>');
+        } else if (count > 3) {
+            context = '<tr' + (call.count > 2 ? ' class="bg-warning">' : '>');
+        }
     }
 
-    var html = 
-        context +
-        '<td>' + call.address + '</td>' +
-        '<td>' + call.avg_dispatch_time + '</td>' +
-        '<td>' + call.count + '</td>' +
-        '</tr>';
+    var html = context;
 
-    return html;
+    // Create table columns
+    for (var i = 0; i < cols.length; i++) {
+        html += '<td>' + call[cols[i]] + '</td>';
+    }
+
+    return html + '</tr>';
+}
+
+/**
+ * Sets up pagination for the provided tableSelector.
+ * @param {*} tableSelector The jQuery selector object.
+ * @param {*} data The data to put in the table.
+ */
+function setupPagination(tableSelector, data, cols, doHighlight = false) {
+    if (tableSelector === undefined) {
+        console.log("An error occurred when trying to set up table pagination.");
+        return;
+    }
+
+    tableSelector.pagination({
+        dataSource: data,
+        locator: 'data',
+        pageSize: 20,
+        prevText: 'Previous',
+        nextText: 'Next',
+        callback: function(data, pagination) {
+            var htmlContent = '';
+
+            // Get the table row content for each call
+            for (var i = 0; i < data.length; i++) {
+                call = data[i];
+
+                // Add the call data to the table
+                htmlContent += createTableDataRow(call, cols, doHighlight);
+            }
+
+            // Inject the HTML
+            tableSelector.find('tbody').html(htmlContent);
+        }
+    });
 }

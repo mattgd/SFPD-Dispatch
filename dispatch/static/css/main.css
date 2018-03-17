@@ -1,3 +1,4 @@
+/* Basic element styling */
 * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -10,12 +11,14 @@ html, body {
 h1, h2, h3, h4, h5, h6, p {
     color: #222;
 }
+
+/* Header styling */
 header {
     text-align: center;
     padding-top: 25px;
-    background: #333;
     color: #FFF;
     border-bottom: 3px solid #DEDEDE;
+    background: url(/static/images/header.png);
 }
 header h1 {
     font-weight: bold;
@@ -27,17 +30,70 @@ header p {
 }
 header .nav {
     text-align: center;
-    margin: 0 auto;
+    margin-bottom: 7px;
     width: 100%;
 }
+header .nav li a {
+    color: #333;
+    font-weight: bold;
+    background: #FFF;
+    margin-bottom: .5rem;
+    border-radius: .25rem;
+}
+header .nav li:first-child a {
+    border-radius: .25rem 0 0 .25rem;
+}
+header .nav li:last-child a {
+    border-radius: 0 .25rem .25rem 0;
+}
+header .nav li a.active,
+header .nav li a:hover {
+    background: #DEDEDE;
+}
+.page-header .section-card {
+    text-align: center;
+}
+.page-header h2 {
+    margin-bottom: 0;
+}
+.page-header p {
+    margin-top: .25rem;
+    margin-bottom: 0;
+}
+
+/* Footer styling */
+footer {
+    background: #333;
+    text-align: center;
+    padding: .5rem;
+    
+    margin-top: .25rem;
+    
+}
+footer p {
+    font-size: 0.9em;
+    color: #FFF;
+    margin-bottom: 0;
+}
+footer p a {
+    color: #FFF;
+}
+footer p a:hover {
+    color: #DEDEDE;
+}
+
+/* Map styling */
 .map {
     width: 100%;
     height: 500px;
 }
+/* Table styling */
 table.table thead tr td {
     font-weight: bold;
     text-transform: uppercase;
 }
+
+/* Section card style - wraps most data elements */
 .section-card {
     background: #FFF;
     padding: 15px;
@@ -49,12 +105,7 @@ table.table thead tr td {
     font-weight: bold;
     color: #666;
 }
-.page-header .section-card {
-    text-align: center;
-}
-.page-header h2 {
-    margin-bottom: 0;
-}
+
 /* Pagination styling */
 .paginationjs ul {
     list-style: none;
@@ -68,6 +119,9 @@ table.table thead tr td {
     border: 1px solid #dee2e6;
     padding: .5rem .75rem;
     margin-left: -1px;
+}
+.paginationjs ul li.active a {
+    background: #DEDEDE;
 }
 .paginationjs ul li:first-child a {
     margin-left: 0;
