@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db.models import Count
+from django.db.models import Avg, Count, TimeField
+from django.db.models.functions import Cast
 from metrics.models import Call
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
@@ -107,30 +108,44 @@ class NearbyView(View):
 class LongestDispatch(View):
 
     def get(self, request):
+        
+        calls = Call.objects.values('address', 'latitude', 'longitude', 'call_type').annotate(
+            count=Count('address')
+        ).annotate(
+            dispatch_time=Cast('dispatch_timestamp', TimeField())
+        ).annotate(
+            received_time=Cast('received_timestamp', TimeField())
+        ).annotate(
+            avg_dispatch_time=Avg('dispatch_time', field='dispatch_time - received_time')
+        ).order_by('-avg_dispatch_time')[:1000]
+        """
         calls = Call.objects.extra(
             select={
                 'dispatch_time': 'dispatch_timestamp - received_timestamp'
             }
         ).order_by('-dispatch_time')[:500]
+        """
+        #print(calls)
 
-        parsed_calls = []
+        data = []
         for call in calls:
-            parsed_calls.append(
+            #print(call["count"])
+            data.append(
                 {
-                    "call_number": call.call_number,
-                    "address": call.address,
-                    "lat": call.latitude,
-                    "lng": call.longitude,
-                    "dispatch_time": str(call.dispatch_time),
-                    "call_type": call.call_type,
-                    "count": 1
+                    #"call_number": call.call_number,
+                    "address": call["address"],
+                    "lat": call["latitude"],
+                    "lng": call["longitude"],
+                    "avg_dispatch_time": str(call["avg_dispatch_time"]),
+                    "call_type": call["call_type"],
+                    "count": call["count"]
                 }
             )
 
         return JsonResponse(
             {
                 'status': 'true',
-                'data': parsed_calls
+                'data': data
             }
         )
 

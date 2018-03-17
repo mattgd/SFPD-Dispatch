@@ -14,22 +14,36 @@
             Heatmap showing the longest average dispatch times with shortest in
             green and longest in red.
         </p>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="dispatchTimeMapShowControls" />
+                Show Controls
+            </label>
+        </div>
         <div class="map" id="dispatchTimeMap"></div>
     </div>
 </div>
 <div class="row">
-    <div class="col-sm">
+    <div class="col-sm section-card">
+        <h3>Addresses with the Longest Average Dispatch Time</h3>
+        <p>
+            <b>How the data is aggregated:</b> a count for the number of times 
+            each unique address appears in the data is calculated along with the 
+            average duration of time between when the call was received and when
+            a unit was dispatched.
+        </p>
+
         <table class="table table-striped" id="dispatchTimeTable">
             <thead>
                 <tr>
                     <td>
-                        Call Number
-                    </td>
-                    <td>
                         Address
                     </td>
                     <td>
-                        Dispatch Time (hh:mm:ss)
+                        Average Dispatch Time (hh:mm:ss)
+                    </td>
+                    <td>
+                        Number of Calls
                     </td>
                     <td>
                         Call Type

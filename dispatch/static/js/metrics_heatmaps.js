@@ -21,13 +21,22 @@ function initHeatmaps() {
             addHeatmapLayer(dispatchTimeMap, addressFreqHeatmap, data);
 
             // Add the call data the dispatch time table
-            var max = Math.min(data.data.length, 20);
+            var max = Math.min(data.data.length, 30);
             for (var i = 0; i < max; i++) {
                 call = data.data[i];
 
                 // Add the call data to the dispatch time table
                 addToDataTable("dispatchTimeTable", call);
-            } 
+            }
+
+            $('#dispatchTimeMapShowControls').change(function() {
+                console.log("here");
+                if($(this).is(":checked")) {
+                    dispatchTimeMap.disableDefaultUI = false;
+                } else {
+                    dispatchTimeMap.disableDefaultUI = true;
+                }    
+            });
         },
         error: function(resp) {
             console.log("An error occured when retrieving longest dispatch data.");
@@ -40,7 +49,7 @@ function initHeatmaps() {
         method: 'GET',
         url: endpoint,
         success: function(data) {
-            console.log(data);
+            //console.log(data);
             // Add the heatmap layer to the map
             addHeatmapLayer(addressFreqMap, addressFreqHeatmap, data);
         },
@@ -57,9 +66,12 @@ function addHeatmapLayer(map, heatmap, data) {
     for (var i = 0; i < data.data.length; i++) {
         point = data.data[i];
         if (point.count !== undefined) {
-            for (var j = 0; j < point.count; j++) {
-                points.push(new google.maps.LatLng(point.lat, point.lng))
-            }
+            points.push(
+                {
+                    location: new google.maps.LatLng(point.lat, point.lng),
+                    weight: 5 * point.count
+                }
+            )
         } else {
             points.push(new google.maps.LatLng(point.lat, point.lng))
         }
@@ -250,11 +262,12 @@ function getDarkMap() {
 }
 
 function addToDataTable(tableName, call) {
+    var context = '<tr' + (call.count > 2 ? ' class="bg-warning">' : '>');
     $('#' + tableName + ' > tbody:last-child').append(
-        '<tr>' +
-        '<td>' + call.call_number + '</td>' +
+        context +
         '<td>' + call.address + '</td>' +
-        '<td>' + call.dispatch_time + '</td>' +
+        '<td>' + call.avg_dispatch_time + '</td>' +
+        '<td>' + call.count + '</td>' +
         '<td>' + call.call_type + '</td>' +
         '</tr>'
     );
