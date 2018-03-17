@@ -2,10 +2,14 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.conf.urls.static import static
+from django.db.models import Avg, Count, F, TimeField
+from django.db.models.functions import Cast
 
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
 import datetime
+import re
+import itertools
 
 from .models import Call
 
@@ -25,133 +29,119 @@ class Heatmaps(View):
         # Render the page
         return render(request, 'heatmaps.html')
 
-def get_dispatch_type(request):
-    response = None
-    address = request.GET.get("address")
-
-    if address:
-        geolocator = Nominatim()
-        location = geolocator.geocode(address)
-
-        if location:
-            pass
-        else:
-            response = JsonResponse(
-                {
-                    'status': 'false',
-                    'message': 'Invalid address.'
-                },
-                status=404
-            )
-    else:
-        response = JsonResponse(
-            {
-                'status': 'false',
-                'message': 'No address provided.'
-            },
-            status=400
-        )
-
-    return response
-
-def get_metrics(request):
+class AverageResponseTime(View):
     """
-    View for getting the dispatch metrics JSON data.
+    Class-based view for calculating average response time per call group.
     """
-    data = {
-        "avg_response_time": {
-            "groups": [],
-            "data": []
-        },
-        "avg_calls_per_hour": {
+
+    def get(self, request):
+        """
+        Returns the average response time per call type group from the database.
+        """
+        data = {
             "labels": [],
             "data": []
-        },
-        "unit_type_distrib": {
-            "labels": [],
-            "data": []
-        },
-        "locations": []
-    }
+        }
 
-    calls = Call.objects.all()
-    total_calls = calls.count()
+        # Get calls grouped by call_type_group and calculate the average
+        # dispatch time for each group.
+        calls = Call.objects.values(
+            'call_type_group'
+        ).annotate(
+            avg_dispatch_time=Avg(F('dispatch_timestamp') - F('received_timestamp'))
+        ).order_by('-avg_dispatch_time')
 
-    avg_resp_time_data = {}
-    
-    avg_calls_per_hour = {}
-    for i in range(0, 24):
-        avg_calls_per_hour[i] = 0
+        # Add the data to the results list
+        for call in calls:
+            group = call["call_type_group"] if call["call_type_group"] else 'Other'
 
-    days = []
-    total_days = 0
-
-    unit_type_distrib = {}
-
-    for call in calls:
-        # Collect response time for average response time metric
-        if call.response_timestamp:
-            response_time = call.response_timestamp - call.received_timestamp
-            group = call.call_type_group if call.call_type_group else "Other"
-            #group = call.call_type if call.call_type else "Other"
-
-            if group in avg_resp_time_data:
-                avg_resp_time_data[group]["avg_time"] += response_time
-                avg_resp_time_data[group]["total_calls"] += 1
-            else:
-                avg_resp_time_data[group] = {
-                    "avg_time": response_time,
-                    "total_calls": 1
-                }
-        
-        # Collect received_timestamp data for avg_calls_per_hour metric
-        if call.received_timestamp:
-            received_time = call.received_timestamp
-            hour = received_time.hour
-            day_key = received_time.strftime("%m/%d")
-
-            if day_key not in days:
-                total_days += 1
-                days.append(day_key)
+            # Truncate life-threatening groups
+            group = re.sub(r'([tT]hreatening)', 'Threat.', group)
             
-            avg_calls_per_hour[hour] += 1
+            data["labels"].append(group)
 
-        # Collect unit type data for unit type distribution metric
-        if call.unit_type:
-            unit_type = call.unit_type
+            seconds = call["avg_dispatch_time"].seconds
+            data["data"].append(round(seconds / 60, 2))
 
-            if unit_type in unit_type_distrib:
-                unit_type_distrib[unit_type] += 1
-            else:
-                unit_type_distrib[unit_type] = 1
-
-        # Collect locations
-        if call.location:
-            data["locations"].append(call.location)
-        
-    # Calculate average response time per call type group
-    for group in avg_resp_time_data:
-        avg_resp_time_data[group]["avg_time"] = (avg_resp_time_data[group]["avg_time"]
-            / avg_resp_time_data[group]["total_calls"])
-        data["avg_response_time"]["groups"].append(group)
-
-        seconds = avg_resp_time_data[group]["avg_time"].seconds
-        data["avg_response_time"]["data"].append(
-            round(seconds / 60, 2)
+        # Return the JSON response
+        return JsonResponse(
+            {
+                "status": "true",
+                "data": data
+            }
         )
 
-    # Calculate average calls per hour
-    for hour in avg_calls_per_hour:
-        data["avg_calls_per_hour"]["data"].append(round(avg_calls_per_hour[hour]
-             / total_days, 2))
+class AverageCallsPerHour(View):
+    """
+    Class-based view for calculating the average calls per hour of day.
+    """
 
-    # Create labels for average calls per hour
-    for i in range(0, 24):
-        hour = "{0}:00".format("0" + str(i) if i < 10 else i)
-        data["avg_calls_per_hour"]["labels"].append(hour)
+    def date_hour(self, timestamp):
+        """
+        Converts a timestamp to a two digit hour string.
+        """
+        return timestamp.strftime("%H")
 
-    for unit_type in unit_type_distrib:
-        data["unit_type_distrib"]["labels"] = list(unit_type_distrib.keys())
-        data["unit_type_distrib"]["data"] = [x / total_calls for x in unit_type_distrib.values()]
+    def get(self, request):
+        """
+        Returns the average calls hour of day from the database.
+        """
+        data = {
+            "labels": [],
+            "data": []
+        }
 
-    return JsonResponse(data, safe=False)
+        # Get all calls ordered by received_timestamp
+        calls = Call.objects.order_by(Cast('received_timestamp', TimeField()))
+
+        # Group the calls data by hours of the day
+        hours = itertools.groupby(
+            calls, lambda call: self.date_hour(call.received_timestamp)
+        )    
+        
+        # Add the data to the results list
+        for hour, matches in hours:
+            data["labels"].append(hour + ':00')
+
+            total_calls = sum(1 for x in matches)
+            data["data"].append(total_calls)
+
+        # Return the JSON response
+        return JsonResponse(
+            {
+                "status": "true",
+                "data": data
+            }
+        )
+
+class BattalionDistribution(View):
+    """
+    Class-based view for calculating the calls per battalion.
+    """
+    
+    def get(self, request):
+        """
+        Returns the count of calls for each unique battalion in the database.
+        """
+        data = {
+            "labels": [],
+            "data": []
+        }
+
+        # Get calls grouped by battalion and count that battalion's calls assigned
+        calls = Call.objects.values('battalion').annotate(
+            count=Count('battalion')
+        ).order_by('battalion')
+
+        # Add the data to the results list
+        for call in calls:
+            data["labels"].append(call["battalion"])
+            data["data"].append(call["count"])
+
+        # Return the JSON response
+        return JsonResponse(
+            {
+                "status": "true",
+                "data": data
+            }
+        )

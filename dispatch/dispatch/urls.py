@@ -16,19 +16,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url
-from metrics.views import Home, Heatmaps, get_metrics
-from api.views import AddressFrequency, AllCalls, NearbyView, LongestDispatch
+from metrics.views import AverageCallsPerHour, AverageResponseTime, BattalionDistribution, Home, Heatmaps
+from api.views import AddressFrequency, NearbyView, LongestDispatch
 
 urlpatterns = [
     # Admin view
     path('admin/', admin.site.urls),
 
-    # Metrics views
+    # Page views
     url(r'^$', Home.as_view(), name='home'),
     url(r'^heatmaps$', Heatmaps.as_view(), name='heatmaps'),
-    url(r'^api/metrics/$', get_metrics, name='api-metrics'),
+
+    # API views
     url(r'^api/calls/address-frequency$', AddressFrequency.as_view(), name='api-address-frequency'),
     url(r'^api/calls/nearby$', NearbyView.as_view(), name='api-calls-nearby'),
     url(r'^api/calls/longest-dispatch$', LongestDispatch.as_view(), name='api-calls-longest-dispatch'),
-    url(r'^api/calls$', AllCalls.as_view(), name='api-all-calls'),
+
+    # Metrics charts views
+    url(r'^api/metrics/calls-per-hour$', AverageCallsPerHour.as_view(), name='metrics-calls-per-hour'),
+    url(r'^api/metrics/battalion-dist$', BattalionDistribution.as_view(), name='metrics-battalion-dist'),
+    url(r'^api/metrics/group-response-time$', AverageResponseTime.as_view(), name='metrics-group-response-time')
 ]

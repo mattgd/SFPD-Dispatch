@@ -12,24 +12,35 @@ from datetime import datetime, timedelta
 class NearbyView(View):
 
     def post(self, request):
+        """
+        Post request receiver function for getting the most-likely dispatch type
+        given an address and timestamp. A radius is also provided to adjust the
+        accuracy of the result.s
+        """
         response = None
         address = request.POST.get("address")
 
+        # Check if an address was provided
         if address:
+            # Get location from address
             geolocator = Nominatim(scheme='http')
             location = geolocator.geocode(address)
 
             if location:
-                # Get radius from parameters, or set
-                # to 1 mile (1609.34 m) by default
+                # Get radius from params, or set to default
+                # of 1 mile and convert to meters.
                 radius = float(request.POST.get("radius", 1.0)) * 1609.34
-                #limit = request.POST.get("limit", 50)
 
+                # Parse the source location and radius into the correct format
                 source_location = geos.fromstr('POINT({0} {1})'.format(location.longitude, location.latitude))
                 desired_radius = {'m': radius}
 
+                # Time parameter for query
                 time = request.POST.get("time")
+
+                # Check if time provided
                 if time:
+                    # Format the time: only need hour of day
                     time = datetime.strptime(time, "%H:%M:%S")
 
                     delta_hours = request.POST.get("delta_hours", 2)
@@ -40,45 +51,40 @@ class NearbyView(View):
 
                     min_time = min(time_minus_delta, time_plus_delta)
                     max_time = max(time_minus_delta, time_plus_delta)
-
+                    
+                    # Get calls in the time range
                     time_range_calls = Call.objects.filter(
                         received_timestamp__hour__gte=min_time,
                                     received_timestamp__hour__lte=max_time)                 
 
+                    # Get the nearby calls and group by unit_type
+                    # sorted by the counts in descending order.
                     nearby_calls = time_range_calls.filter(
                         point__distance_lte=(
-                            source_location, D(**desired_radius)))
-                    #.distance(source_location).order_by('distance')
+                            source_location, D(**desired_radius)
+                        )
+                    ).values(
+                        'unit_type'
+                    ).annotate(
+                        count=Count('unit_type')
+                    ).order_by('-count')
+                    
+                    # Create the results data
+                    max_type = nearby_calls[0]["unit_type"] if nearby_calls[0] else None
+                    max_type_calls = nearby_calls[0]["count"] if nearby_calls[0] else None
 
-                    unit_types = {}
-                    for call in nearby_calls:
-                        unit_type = call.unit_type
-                        
-                        if unit_type in unit_types:
-                            unit_types[unit_type] += 1
-                        else:
-                            unit_types[unit_type] = 1
-
-                    # Calculate the most common call for the given address
-                    # and time range to be returned via JSON
-                    max_type = None
-                    max_type_calls = 0
-                    for unit_type in unit_types:
-                        call_count = unit_types[unit_type]
-                        if call_count > max_type_calls:
-                            max_type = unit_type
-                            max_type_calls = call_count
-
+                    # Create JSON response
                     response = JsonResponse(
                         {
-                            'status': 'true',
-                            'data': {
+                            "status": "true",
+                            "data": {
                                 "unit_type_match": max_type,
                                 "unit_type_match_count": max_type_calls
                             }
                         }
                     )
                 else:
+                    # No time provided, 400 Bad Request
                     response = JsonResponse(
                     {
                         'status': 'false',
@@ -87,14 +93,16 @@ class NearbyView(View):
                     status=400
                 )
             else:
+                # No time provided, 400 Bad Request
                 response = JsonResponse(
                     {
                         'status': 'false',
                         'message': 'Invalid address.'
                     },
-                    status=404
+                    status=400
                 )
         else:
+            # No address provided, 400 Bad Request
             response = JsonResponse(
                 {
                     'status': 'false',
@@ -162,33 +170,5 @@ class AddressFrequency(View):
             {
                 'status': 'true',
                 'data': data
-            }
-        )
-
-class AllCalls(View):
-
-    def get(self, request):
-        """
-        Returns all Calls in the database.
-        """
-        calls = Call.objects.all()
-
-        print()
-        data = []
-
-        for call in calls:
-            fields = call.__dict__
-            call_data = {}
-            
-            for field, value in fields.items():
-                if field != '_state' and field != 'point':
-                    call_data[field] = value
-
-            data.append(call_data)
-
-        return JsonResponse(
-            {
-                'status': 'true',
-                'calls': data
             }
         )
