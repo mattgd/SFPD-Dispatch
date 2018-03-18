@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.conf.urls.static import static
-from django.db.models import Avg, Count, F, TimeField
-from django.db.models.functions import Cast
+from django.db.models import Avg, Count, F, TimeField, OuterRef, Sum, Subquery
+from django.db.models.functions import Cast, TruncDay, TruncHour
 
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
@@ -75,13 +75,6 @@ class AverageCallsPerHour(View):
     """
     Class-based view for calculating the average calls per hour of day.
     """
-
-    def date_hour(self, timestamp):
-        """
-        Converts a timestamp to a two digit hour string.
-        """
-        return timestamp.strftime("%H")
-
     def get(self, request):
         """
         Returns the average calls hour of day from the database.
@@ -91,20 +84,42 @@ class AverageCallsPerHour(View):
             "data": []
         }
 
-        # Get all calls ordered by received_timestamp
-        calls = Call.objects.order_by(Cast('received_timestamp', TimeField()))
+        # Get all calls grouped by day and hour, ordered by hour
+        day_calls = Call.objects.annotate(
+            hour=TruncHour('received_timestamp'),
+            day=TruncDay('received_timestamp'),
+        ).values('day', 'hour').annotate(
+            count=Count('pk')
+        ).order_by('hour')
 
-        # Group the calls data by hours of the day
-        hours = itertools.groupby(
-            calls, lambda call: self.date_hour(call.received_timestamp)
-        )    
-        
+        # Creates a list to hold the total calls for each hour of the day
+        hours = [0] * 24
+
+        # Creates labels for each hour of the day
+        labels = []
+        for i in range(0, 24):
+            hour_label = str('0' + str(i) if i < 10 else i) + ':00'
+            labels.append(hour_label)
+
+        days = [] # The days that have been accounted for
+        total_days = 0 # The total number of days in the data set
+
+        # Iterate through each day-hour call total and add the count of calls
+        # to the hours list. When encountering a new day value, increment the
+        # total days (used for calculating the average)
+        for call in day_calls:
+            if call["day"] not in days:
+                days.append(call["day"])
+                total_days += 1
+
+            hours[call["hour"].hour] += call["count"]
+
+        # Calculate average over each day of results
+        hours = [round(hour_count / total_days, 2) for hour_count in hours]
+
         # Add the data to the results list
-        for hour, matches in hours:
-            data["labels"].append(hour + ':00')
-
-            total_calls = sum(1 for x in matches)
-            data["data"].append(total_calls)
+        data["labels"] = labels
+        data["data"] = hours
 
         # Return the JSON response
         return JsonResponse(
@@ -118,7 +133,7 @@ class BattalionDistribution(View):
     """
     Class-based view for calculating the calls per battalion.
     """
-    
+
     def get(self, request):
         """
         Returns the count of calls for each unique battalion in the database.
