@@ -48,7 +48,7 @@ function createIncidentsPerDayChart() {
                         mode: 'single',
                         callbacks: {
                             label: function(tooltipItems, data) { 
-                                return tooltipItems.yLabel + ' calls';
+                                return data.datasets[tooltipItems.datasetIndex].label + ': ' + tooltipItems.yLabel + ' calls';
                             }
                         }
                     }
