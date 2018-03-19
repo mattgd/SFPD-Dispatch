@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row page-header">
+    <div class="col section-card">
+        <h2>Incident Metrics</h2>
+        <p>Incident and crime metrics based on San Francisco Police Department data between January 13, 2018 and January 24, 2018.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm section-card">
+        <h3>Safest Neighborhoods by Number of Calls</h3>
+        <p>
+            Excludes citizen assistance/service calls, which are deemed non-dangerous.
+        </p>
+
+        <table class="table table-striped" id="incidentTable">
+            <thead>
+                <tr>
+                    <td>Neighborhood/District</td>
+                    <td>Number of Incidents</td>
+                    <td>Number of Calls</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% load static %}
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
+<script type="text/javascript">
+/**
+ * Initializes the incident tables.
+ */
+function initIncidentTables() {
+    // Retrieves the longest average dispatch time data,
+    // and initializes the longest-dispatch heatmap.
+    endpoint = '/api/calls/safest-neighborhoods';
+    $.ajax({
+        method: 'GET',
+        url: endpoint,
+        success: function(data) {
+            // Setup pagination for the average safest neighborhoods table
+            // The columns in the table
+            var cols = ['neighborhood_district', 'incidents', 'calls'];
+            setupPagination($('#incidentTable'), data, cols);
+        },
+        error: function(resp) {
+            console.log("An error occured when retrieving safest neighborhoods data.");
+        }
+    });
+}
+
+initIncidentTables();
+</script>
+{% endblock %}

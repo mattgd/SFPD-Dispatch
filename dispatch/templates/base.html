@@ -27,11 +27,15 @@
             <ul class="nav justify-content-center">
                 <li class="nav-item">
                     {% url 'home' as home_url %}
-                    <a class="nav-link {% if request.path == home_url %}active{% endif %}" href="{{ home_url }}">Metrics</a>
+                    <a class="nav-link {% if request.path == home_url %}active{% endif %}" href="{{ home_url }}">Dispatch Metrics</a>
                 </li>
                 <li class="nav-item">
                     {% url 'heatmaps' as heatmaps_url %}
                     <a class="nav-link {% if request.path == heatmaps_url %}active{% endif %}" href="{{ heatmaps_url }}">Heatmaps</a>
+                </li>
+                <li class="nav-item">
+                    {% url 'incident-metrics' as im_url %}
+                    <a class="nav-link {% if request.path == im_url %}active{% endif %}" href="{{ im_url }}">Incident Metrics</a>
                 </li>
             </ul>
         </header>

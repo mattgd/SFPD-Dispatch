@@ -23,16 +23,16 @@ function initHeatmaps() {
         method: 'GET',
         url: endpoint,
         success: function(data) {
-             // Set the custom map type
-             setDarkMark(dispatchTimeMap);
+            // Set the custom map type
+            setDarkMap(dispatchTimeMap);
 
             // Add the heatmap layer to the map
             addHeatmapLayer(dispatchTimeMap, addressFreqHeatmap, data);
 
             // Setup pagination for the average dispatch time table
             // The columns in the table
-            var cols = ['address', 'avg_dispatch_time', 'count'];
-            setupPagination($('#dispatchTimeTable'), data, cols, true);
+            var cols = ['address', 'avg_dispatch_time', 'count', 'incident_count'];
+            setupPagination($('#dispatchTimeTable'), data, cols, 'incident_count');
         },
         error: function(resp) {
             console.log("An error occured when retrieving longest dispatch data.");
@@ -46,7 +46,7 @@ function initHeatmaps() {
         url: endpoint,
         success: function(data) {
             // Set the custom map type
-            setDarkMark(addressFreqMap);
+            setDarkMap(addressFreqMap);
 
             // Add the heatmap layer to the map
             addHeatmapLayer(addressFreqMap, addressFreqHeatmap, data);
@@ -99,7 +99,7 @@ function addHeatmapLayer(map, heatmap, data) {
  * Sets the custom dark map type.
  * @param {*} map The map to set the type for.
  */
-function setDarkMark(map) {
+function setDarkMap(map) {
     map.mapTypes.set('dark_map', getDarkMap());
     map.setMapTypeId('dark_map');
 }
@@ -280,68 +280,4 @@ function getDarkMap() {
         ],
         { name: "Dark Map" }
     );   
-}
-
-/**
- * Creates a data table row using the provided call and columns.
- * @param {*} call The call to extract data from.
- * @param {*} cols The table columns to fill.
- * @param {*} doHighlight Boolean value for whether or not to highlight large values.
- */
-function createTableDataRow(call, cols, doHighlight) {
-    var count = call.count;
-    var context = '<tr>';
-
-    // Highlights rows based on count
-    if (doHighlight) {
-        // Calculate context class for table row based on call count
-        if (count > 10) {
-            context = '<tr' + (call.count > 10 ? ' class="bg-danger">' : '>');
-        } else if (count > 3) {
-            context = '<tr' + (call.count > 2 ? ' class="bg-warning">' : '>');
-        }
-    }
-
-    var html = context;
-
-    // Create table columns
-    for (var i = 0; i < cols.length; i++) {
-        html += '<td>' + call[cols[i]] + '</td>';
-    }
-
-    return html + '</tr>';
-}
-
-/**
- * Sets up pagination for the provided tableSelector.
- * @param {*} tableSelector The jQuery selector object.
- * @param {*} data The data to put in the table.
- */
-function setupPagination(tableSelector, data, cols, doHighlight = false) {
-    if (tableSelector === undefined) {
-        console.log("An error occurred when trying to set up table pagination.");
-        return;
-    }
-
-    tableSelector.pagination({
-        dataSource: data,
-        locator: 'data',
-        pageSize: 20,
-        prevText: 'Previous',
-        nextText: 'Next',
-        callback: function(data, pagination) {
-            var htmlContent = '';
-
-            // Get the table row content for each call
-            for (var i = 0; i < data.length; i++) {
-                call = data[i];
-
-                // Add the call data to the table
-                htmlContent += createTableDataRow(call, cols, doHighlight);
-            }
-
-            // Inject the HTML
-            tableSelector.find('tbody').html(htmlContent);
-        }
-    });
 }

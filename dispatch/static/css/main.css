@@ -38,7 +38,6 @@ header .nav li a {
     font-weight: bold;
     background: #FFF;
     margin-bottom: .5rem;
-    border-radius: .25rem;
 }
 header .nav li:first-child a {
     border-radius: .25rem 0 0 .25rem;
@@ -100,10 +99,15 @@ table.table thead tr td {
     margin: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
-.section-card h3 {
-    font-size: 1.2em;
+.section-card h3, .section-card h4 {
     font-weight: bold;
     color: #666;
+}
+.section-card h3 {
+    font-size: 1.2em;
+}
+.section-card h4 {
+    font-size: 1em;
 }
 
 /* Pagination styling */

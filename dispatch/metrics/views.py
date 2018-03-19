@@ -19,7 +19,7 @@ class Home(View):
     """
     def get(self, request, *args, **kwargs):
         # Render the page
-        return render(request, 'metrics.html')
+        return render(request, 'dispatch_metrics.html')
 
 class Heatmaps(View):
     """
@@ -28,6 +28,14 @@ class Heatmaps(View):
     def get(self, request, *args, **kwargs):
         # Render the page
         return render(request, 'heatmaps.html')
+
+class IncidentMetrics(View):
+    """
+    Class-based view for the incident metrics page.
+    """
+    def get(self, request, *args, **kwargs):
+        # Render the page
+        return render(request, 'incident_metrics.html')
 
 class AverageResponseTime(View):
     """

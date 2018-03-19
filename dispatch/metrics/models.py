@@ -37,7 +37,7 @@ class Call(models.Model):
     unit_sequence_in_call_dispatch = models.IntegerField()
     fire_prevention_district = models.CharField(max_length=4)
     supervisor_district	= models.CharField(max_length=2)
-    neighborhood_district = models.CharField(max_length=2, null=True)
+    neighborhood_district = models.CharField(max_length=100, null=True)
     location = models.TextField()
     row_id = models.TextField()
     latitude = models.DecimalField(max_digits=12, decimal_places=10)

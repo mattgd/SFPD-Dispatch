@@ -25,27 +25,34 @@
         <h3>Addresses with the Longest Average Dispatch Time</h3>
         <p>
             <b>How the data is aggregated:</b> a count for the number of times 
-            each unique address appears in the data is calculated along with the 
+            each unique location appears in the data is calculated along with the 
             average duration of time between when the call was received and when
             a unit was dispatched.
         </p>
         <p>
-            Addresses with more than a few calls are highlighted in yellow
-            and address with several calls are highlighted in red.
+            Addresses with more than a few incident are highlighted in yellow
+            and address with several incidents are highlighted in red.
+        </p>
+
+        <h4>Reducing Average Dispatch Time</h4>
+        <p>
+            The 200 Block of MARKET ST is an area with the highest average
+            dispatch time and frequent incidents. This area in particular has
+            many Trail/Rail Incidents with many BART stations in the area.
+        </p>
+        <p>
+            These types of incidents often take extra time for Fire crews to respond to.
+            Additional units that are trained in responding to Trail/Rail Incidents
+            may reduce the response time significantly.
         </p>
 
         <table class="table table-striped" id="dispatchTimeTable">
             <thead>
                 <tr>
-                    <td>
-                        Address
-                    </td>
-                    <td>
-                        Average Dispatch Time (hh:mm:ss)
-                    </td>
-                    <td>
-                        Number of Calls
-                    </td>
+                    <td>Address</td>
+                    <td>Avg. Dispatch Time (h:mm:ss)</td>
+                    <td># of Calls</td>
+                    <td># of Incidents</td>
                 </tr>
             </thead>
             <tbody>
@@ -71,12 +78,8 @@
         <table class="table table-striped" id="addressFreqTable">
             <thead>
                 <tr>
-                    <td>
-                        Address
-                    </td>
-                    <td>
-                        Number of Calls
-                    </td>
+                    <td>Address</td>
+                    <td>Number of Calls</td>
                 </tr>
             </thead>
             <tbody>
@@ -90,6 +93,7 @@
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
 <script>
 var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
 </script>

@@ -117,13 +117,14 @@ class LongestDispatch(View):
 
     def get(self, request):  
         calls = Call.objects.values('address', 'latitude', 'longitude').annotate(
-            count=Count('address')
-        ).annotate(
+            count=Count('address'),
+            incidents=Count('incident_number', distinct=True),
             avg_dispatch_time=Avg(F('dispatch_timestamp') - F('received_timestamp'))
         ).order_by('-avg_dispatch_time')[:750]
-
+        
         data = []
         for call in calls:
+            
             data.append(
                 {
                     "address": call["address"],
@@ -131,10 +132,10 @@ class LongestDispatch(View):
                     "lng": call["longitude"],
                     # Convert avg_dispatch_time to a string and remove millis
                     "avg_dispatch_time": str(call["avg_dispatch_time"]).split(".")[0],
+                    "incident_count": call["incidents"],
                     "count": call["count"]
                 }
             )
-            
 
         return JsonResponse(
             {
@@ -165,6 +166,44 @@ class AddressFrequency(View):
                         "lng": address["longitude"]
                     }
                 )
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'data': data
+            }
+        )
+
+class SafestNeighborhoods(View):
+
+    def get(self, request):
+        """
+        Returns JSON representing a list of each neighborhood and the number
+        of calls.
+        """
+        # Excluded call types (non-dangerous)
+        excluded_types = [
+            "Citizen Assist / Service Call"
+        ]
+
+        # Gets calls grouped by neighborhood and sorted by number of calls
+        calls = Call.objects.exclude(
+            call_type__in=excluded_types
+        ).values('neighborhood_district').annotate(
+            calls=Count('pk'),
+            incidents=Count('incident_number', distinct=True)
+        ).order_by('incidents')
+        
+        # Populates the data list for the JSON response
+        data = []
+        for call in calls:
+            data.append(
+                {
+                    "neighborhood_district": call["neighborhood_district"],
+                    "calls": call["calls"],
+                    "incidents": call["incidents"]
+                }
+            )
 
         return JsonResponse(
             {
