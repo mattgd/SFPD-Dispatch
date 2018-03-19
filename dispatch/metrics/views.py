@@ -3,7 +3,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf.urls.static import static
 from django.db.models import Avg, Count, F, TimeField, OuterRef, Sum, Subquery
-from django.db.models.functions import Cast, TruncDay, TruncHour
+from django.db.models.functions import Cast, TruncDay, TruncHour, ExtractWeek
 
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
@@ -168,3 +168,101 @@ class BattalionDistribution(View):
                 "data": data
             }
         )
+
+class NeighborhoodTrends(View):
+
+    def get(self, request):
+        """
+        Returns JSON representing a list of each neighborhood and the number
+        of calls per day over the data time period.
+        """
+        neighborhoods = [
+            "Mission", "Western Addition", "Sunset/Parkside",
+            "Financial District/South Beach", "South of Market"
+        ]
+        # Gets calls grouped by day and neighborhood
+        calls = Call.objects.filter(neighborhood_district__in=neighborhoods).values(
+            'call_date', 'neighborhood_district'
+        ).annotate(
+            calls=Count('pk'),
+            incidents=Count('incident_number', distinct=True)
+        ).order_by('call_date')
+        
+        # Populates the data list for the JSON response
+        data = {
+            "labels": [],
+            "datasets": {}
+        }
+
+        count = 0
+        bgColors = get_background_colors(len(neighborhoods))
+        borderColors = get_border_colors(len(neighborhoods))
+
+        for call in calls:
+            neigh = call["neighborhood_district"]
+            date = call["call_date"]
+
+            if date not in data["labels"]:
+                data["labels"].append(date)
+
+            if neigh in data["datasets"]:
+                data["datasets"][neigh]["data"].append(call["incidents"])
+            else:
+                data["datasets"][neigh] = {
+                    "label": neigh,
+                    "data": [call["incidents"]],
+                    "fill": "false",
+                    "backgroundColor": bgColors[count],
+                    "borderColor": borderColors[count],
+                    "borderWidth": 1
+                }
+
+                count += 1
+
+        # Turn the datasets dictionary into a list for Chart.js
+        data["datasets"] = list(data["datasets"].values())
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'data': data
+            }
+        )
+
+    
+def get_background_colors(amount):
+    """
+    Returns an Array of rgba colors to chart background colors.
+    @param amount: The number of colors to return (currently a max of 11).
+    @return: an Array of rgba colors to chart background colors.
+    """
+    bg_colors = [
+        'rgba(227, 26, 28, 0.3)',
+        'rgba(31, 120, 180, 0.3)',
+        'rgba(178, 223, 138, 0.5)',
+        'rgba(106, 61, 154, 0.3)',
+        'rgba(255, 127, 0, 0.3)',
+        'rgba(251, 154, 153, 0.3)',
+        'rgba(253, 191, 111, 0.3)',
+        'rgba(51, 160, 44, 0.3)',
+        'rgba(141, 211, 199, 0.5)',
+        'rgba(202, 178, 214, 0.3)',
+        'rgba(243, 128, 255, 0.3)'
+    ]
+
+    colors_len = len(bg_colors)
+    return bg_colors[0:amount if amount < colors_len else colors_len]
+
+def get_border_colors(amount):
+    """
+    Returns an Array of rgba colors to chart border colors.
+    @param amount: The number of colors to return (currently a max of 11).
+    @return: an Array of rgba colors to chart border colors.
+    """
+    border_colors = get_background_colors(amount)
+
+    for i in range(0, len(border_colors)):
+        color = border_colors[i]
+        border_colors[i] = color[0:len(color) - 4] + '1)'
+
+    return border_colors

@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url
 from metrics.views import (AverageCallsPerHour, AverageResponseTime,
-    BattalionDistribution, Home, Heatmaps, IncidentMetrics)
+    BattalionDistribution, Home, Heatmaps, IncidentMetrics, NeighborhoodTrends)
 from api.views import AddressFrequency, NearbyView, LongestDispatch, SafestNeighborhoods
 
 urlpatterns = [
@@ -38,5 +38,6 @@ urlpatterns = [
     # Metrics charts views
     url(r'^api/metrics/calls-per-hour$', AverageCallsPerHour.as_view(), name='metrics-calls-per-hour'),
     url(r'^api/metrics/battalion-dist$', BattalionDistribution.as_view(), name='metrics-battalion-dist'),
-    url(r'^api/metrics/group-response-time$', AverageResponseTime.as_view(), name='metrics-group-response-time')
+    url(r'^api/metrics/group-response-time$', AverageResponseTime.as_view(), name='metrics-group-response-time'),
+    url(r'^api/metrics/neighborhood-trends$', NeighborhoodTrends.as_view(), name='api-calls-neighborhood-trends')
 ]

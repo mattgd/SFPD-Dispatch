@@ -8,6 +8,18 @@
     </div>
 </div>
 
+<!-- Incident metric charts HTML -->
+<div class="row">
+    <!-- Incidents Per Day chart section -->
+    <div class="col-sm section-card">
+        <h3>Incidents Per Day by Neighborhood</h3>
+        <p>Number of incidents per day for the top five most populous neighborhoods.</p>
+        <hr />
+
+        <canvas id="incidentsPerDay" height="300" width="auto"></canvas>
+    </div>
+    <!-- End Incidents Per Day chart section -->
+</div>
 <div class="row">
     <div class="col-sm section-card">
         <h3>Safest Neighborhoods by Number of Calls</h3>
@@ -33,6 +45,9 @@
 {% load static %}
 {% block scripts %}
 {{ block.super }}
+<script type="text/javascript" src="{% static 'js/Chart.bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/chart_utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/incident_charts.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
 <script type="text/javascript">

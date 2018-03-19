@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.db.models import Avg, Count, TimeField, F
-from django.db.models.functions import Cast
+from django.db.models.functions import Cast, TruncDate
 from metrics.models import Call
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
