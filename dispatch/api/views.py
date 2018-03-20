@@ -116,8 +116,10 @@ class NearbyView(View):
 class LongestDispatch(View):
 
     def get(self, request):  
-        calls = Call.objects.values('address', 'latitude', 'longitude').annotate(
-            count=Count('address'),
+        calls = Call.objects.values('address').annotate(
+            count=Count('pk'),
+            latitude=Avg('latitude'),
+            longitude=Avg('longitude'),
             incidents=Count('incident_number', distinct=True),
             avg_dispatch_time=Avg(F('dispatch_timestamp') - F('received_timestamp'))
         ).order_by('-avg_dispatch_time')[:750]
@@ -150,23 +152,31 @@ class AddressFrequency(View):
         """
         Retrieves the frequency of all addresses in the calls database.
         """
+        # The minimum number of calls necessary for an address to be included
         cutoff_value = request.GET.get('cutoff_value', 4)
-        addresses = Call.objects.values('address', 'latitude', 'longitude').annotate(count=Count('address')).order_by('-count')
+
+        # Gets calls grouped by address and takes an average of the latitude
+        # and longitude values for the heatmap. Only addresses with call counts
+        # greater than or equal to the cutoff value are included.
+        addresses = Call.objects.values('address').annotate(
+            count=Count('pk'),
+            latitude=Avg('latitude'),
+            longitude=Avg('longitude')
+        ).filter(count__gte=cutoff_value).order_by('-count')
+
+        # Generate the results list from the query set
         data = []
-
         for address in addresses:
-            count = address["count"]
-            
-            if count >= cutoff_value:
-                data.append(
-                    {
-                        "address": address["address"],
-                        "count": count,
-                        "lat": address["latitude"],
-                        "lng": address["longitude"]
-                    }
-                )
+            data.append(
+                {
+                    "address": address["address"],
+                    "count": address["count"],
+                    "lat": address["latitude"],
+                    "lng": address["longitude"]
+                }
+            )
 
+        # Return the JSON data
         return JsonResponse(
             {
                 'status': 'true',
@@ -204,6 +214,25 @@ class SafestNeighborhoods(View):
                     "incidents": call["incidents"]
                 }
             )
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'data': data
+            }
+        )
+
+class Neighborhoods(View):
+
+    def get(self, request):
+        """
+        Returns JSON representing a list of the neighborhoods/districts.
+        """
+        # Gets list of neighborhoods
+        neighborhoods = Call.objects.values('neighborhood_district').distinct().order_by('neighborhood_district')
+        
+        # Populates the data list for the JSON response
+        data = [n["neighborhood_district"] for n in neighborhoods]
 
         return JsonResponse(
             {

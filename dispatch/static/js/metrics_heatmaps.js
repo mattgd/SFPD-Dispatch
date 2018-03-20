@@ -35,7 +35,7 @@ function initHeatmaps() {
             setupPagination($('#dispatchTimeTable'), data, cols, 'incident_count');
         },
         error: function(resp) {
-            console.log("An error occured when retrieving longest dispatch data.");
+            console.error("An error occured when retrieving longest dispatch data.");
         }
     });
 
@@ -57,7 +57,7 @@ function initHeatmaps() {
             setupPagination($('#addressFreqTable'), data, cols);
         },
         error: function(resp) {
-            console.log("An error occured when retrieving longest dispatch data.");
+            console.error("An error occured when retrieving longest dispatch data.");
         }
     });
 }

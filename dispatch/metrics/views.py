@@ -195,8 +195,8 @@ class NeighborhoodTrends(View):
         }
 
         count = 0
-        bgColors = get_background_colors(len(neighborhoods))
-        borderColors = get_border_colors(len(neighborhoods))
+        bgColors = get_colors(len(neighborhoods), 0.4)
+        borderColors = get_colors(len(neighborhoods), 1)
 
         for call in calls:
             neigh = call["neighborhood_district"]
@@ -229,40 +229,138 @@ class NeighborhoodTrends(View):
             }
         )
 
+    def post(self, request):
+        """
+        Returns JSON representing a neighborhood's incidents per day by call
+        type and total incidents per day over the data time period.
+        """
+        response = None
+        neighborhood = request.POST.get('neighborhood')
+
+        if neighborhood:
+            # Gets calls grouped by day and type
+            calls = Call.objects.filter(neighborhood_district=neighborhood).values(
+                'call_date', 'call_type'
+            ).annotate(
+                incidents=Count('incident_number', distinct=True)
+            ).order_by('call_date')
+            
+            # Populates the data list for the JSON response
+            data = {}
+            types = []
+
+            # Prepare data for Chart.js formatting
+            for call in calls:
+                call_date = str(call["call_date"])
+                call_type = call["call_type"]
+
+                if call_date not in data:
+                    data[call_date] = {
+                        "datasets": {},
+                        "total_incidents": 0
+                    }
+
+                # Aggregate a list of call_type values
+                if call_type not in types:
+                    types.append(call_type)
+
+                data[call_date]["datasets"][call_type] = call["incidents"]
+                data[call_date]["total_incidents"] += call["incidents"]
+
+            colors = get_colors(len(types) + 1, 0.8)
+            dates = list(data.keys())
+            response_data = {
+                "neighborhood_district": neighborhood,
+                "labels": dates,
+                "datasets": []
+            }
+            
+            # Organize data into chart-compatible format
+            count = 0
+            incident_count = None
+            total_incidents = []
+            for call_type in types:
+                dataset = {
+                    "label": call_type,
+                    "data": [],
+                    "backgroundColor": colors[count],
+                    "borderWidth": 0,
+                    "yAxisID": "bar-y-axis",
+                }
+
+                for date in dates:
+                    if call_type in data[date]["datasets"]:
+                        incident_count = data[date]["datasets"][call_type]
+                    else:
+                        incident_count = 0
+
+                    # Append incident count or 0 if there were no incidents
+                    # of that call_type for the given date
+                    dataset["data"].append(incident_count)
+                    total_incidents.append(data[date]["total_incidents"] if "total_incidents" else 0)
+                
+                response_data["datasets"].append(dataset)
+                count += 1
+
+            # Insert the total incidents per day data at the front of the
+            # the datasets list as the line chart
+            response_data["limits"] = {
+                "min": min(total_incidents),
+                "max": max(total_incidents)
+            }
+            total_incidents = {
+                "data": total_incidents,
+                "type": "line",
+                "label": "Total Incidents",
+                "fill": "false",
+                "backgroundColor": "#333333",
+                "borderColor": "#222222",
+                "pointHitRadius": 10,
+            }
+            response_data["datasets"].insert(0, total_incidents)
+
+            response = JsonResponse(
+                {
+                    'status': 'true',
+                    'data': response_data
+                }
+            )
+        else:
+            # No time provided, 400 Bad Request
+            response = JsonResponse(
+                {
+                    'status': 'false',
+                    'message': 'Invalid neighborhood.'
+                },
+                status=400
+            )
+
+        return response
     
-def get_background_colors(amount):
+def get_colors(amount, opacity):
     """
     Returns an Array of rgba colors to chart background colors.
     @param amount: The number of colors to return (currently a max of 11).
     @return: an Array of rgba colors to chart background colors.
     """
-    bg_colors = [
-        'rgba(227, 26, 28, 0.3)',
-        'rgba(31, 120, 180, 0.3)',
-        'rgba(178, 223, 138, 0.5)',
-        'rgba(106, 61, 154, 0.3)',
-        'rgba(255, 127, 0, 0.3)',
-        'rgba(251, 154, 153, 0.3)',
-        'rgba(253, 191, 111, 0.3)',
-        'rgba(51, 160, 44, 0.3)',
-        'rgba(141, 211, 199, 0.5)',
-        'rgba(202, 178, 214, 0.3)',
-        'rgba(243, 128, 255, 0.3)'
+    colors = [
+        'rgba(227, 26, 28, {0})',
+        'rgba(31, 120, 180, {0})',
+        'rgba(178, 223, 138, {0})',
+        'rgba(106, 61, 154, {0})',
+        'rgba(255, 127, 0, {0})',
+        'rgba(251, 154, 153, {0})',
+        'rgba(253, 191, 111, {0})',
+        'rgba(51, 160, 44, {0})',
+        'rgba(141, 211, 199, {0})',
+        'rgba(202, 178, 214, {0})',
+        'rgba(243, 128, 255, {0})',
+        'rgba(203, 75, 22, {0})',
+        'rgba(108, 113, 196, {0})',
+        'rgba(38, 139, 210, {0})',
+        'rgba(211, 54, 130, {0})'
     ]
 
-    colors_len = len(bg_colors)
-    return bg_colors[0:amount if amount < colors_len else colors_len]
-
-def get_border_colors(amount):
-    """
-    Returns an Array of rgba colors to chart border colors.
-    @param amount: The number of colors to return (currently a max of 11).
-    @return: an Array of rgba colors to chart border colors.
-    """
-    border_colors = get_background_colors(amount)
-
-    for i in range(0, len(border_colors)):
-        color = border_colors[i]
-        border_colors[i] = color[0:len(color) - 4] + '1)'
-
-    return border_colors
+    colors = [c.format(opacity) for c in colors] # Format opacity
+    colors_len = len(colors)
+    return colors[0:amount if amount < colors_len else colors_len]

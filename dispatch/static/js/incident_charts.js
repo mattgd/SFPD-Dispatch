@@ -40,6 +40,9 @@ function createIncidentsPerDayChart() {
                             scaleLabel: {
                                 display: true,
                                 labelString: 'Date'
+                            },
+                            ticks: {
+                                autoSkip: false
                             }
                         }],
                     },
@@ -51,14 +54,79 @@ function createIncidentsPerDayChart() {
                                 return data.datasets[tooltipItems.datasetIndex].label + ': ' + tooltipItems.yLabel + ' calls';
                             }
                         }
-                    }
+                    },
+                    responsive: true
                 }
             });
         },
         error: function(resp) {
-            console.log("An error occurred when retrieving average response time data.");
+            console.error("An error occurred when retrieving incidents per day data.");
         }
     });  
+}
+
+/**
+ * Creates the Chart.js chart for average calls per hour chart.
+ */
+function createNeighborhoodTrendChart(data) {
+    var ctx = $("#neighborhoodTrendsChart");
+
+    // Remove top status layer of data
+    data = data.data;
+
+    // Create the Chart object
+    neighborhoodTrendsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data["labels"],
+            datasets: data["datasets"]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    stacked: false,
+                    ticks: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: data["limits"]["max"] + 2
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Total Number of Incidents'
+                    }
+                  }, {
+                    id: "bar-y-axis",
+                    stacked: true,
+                    display: false, //optional
+                    ticks: {
+                      beginAtZero: true,
+                      min: 0,
+                      max: data["limits"]["max"] + 2
+                    },
+                    type: 'linear'
+                }],
+                xAxes:[{
+                    stacked: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Date'
+                    },
+                    ticks: {
+                        autoSkip: false
+                    }
+                }],
+            },
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Incident Trends for ' + data['neighborhood_district'],
+                fontSize: 16
+            }
+        }
+    });
+
+    var results = $("#trendResults");
+    results.fadeIn();
 }
 
 // Call the createCharts function

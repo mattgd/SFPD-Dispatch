@@ -38,7 +38,7 @@ function createTableDataRow(call, cols, highlightCol = undefined) {
  */
 function setupPagination(tableSelector, data, cols, highlightCol) {
     if (tableSelector === undefined) {
-        console.log("An error occurred when trying to set up table pagination.");
+        console.error("An error occurred when trying to set up table pagination.");
         return;
     }
 

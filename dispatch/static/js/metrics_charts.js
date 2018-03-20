@@ -86,7 +86,7 @@ function createAvgCallsPerHourChart() {
             });
         },
         error: function(resp) {
-            console.log("An error occurred when retrieving average response time data.");
+            console.error("An error occurred when retrieving average response time data.");
         }
     });  
 }
@@ -156,7 +156,7 @@ function createGroupRespTimeChart() {
             });
         },
         error: function(resp) {
-            console.log("An error occurred while retrieving the battalion distribution data.");
+            console.error("An error occurred while retrieving the battalion distribution data.");
         }
     });
 }
@@ -227,7 +227,7 @@ function createBattalionDistribChart() {
             });
         },
         error: function(resp) {
-            console.log("An error occurred while retrieving the battalion distribution data.");
+            console.error("An error occurred while retrieving the battalion distribution data.");
         }
     });
 }

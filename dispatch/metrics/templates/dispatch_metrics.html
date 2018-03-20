@@ -13,7 +13,10 @@
     <!-- Average Response Time Per Call Type Group chart section -->
     <div class="col-sm section-card">
         <h3>Average Response Time Per Call Type Group</h3>
-        <p>Average time from received time to response time for each call type group.</p>
+        <p>
+            Average duration from the time the call was received to time the 
+            emergency unit was enroute.
+        </p>
         <hr />
 
         <canvas id="typeResponseTime" height="300" width="auto"></canvas>
@@ -71,7 +74,7 @@
                     <option value="1.5">1.5 miles</option>
                     <option value="2">2 miles</option>
                 </select>
-                <small id="radiusHelp" class="form-text text-muted">Enter a radius to search nearby.</small>
+                <small id="radiusHelp" class="form-text text-muted">Select a radius to search nearby.</small>
             </div>
             <button type="submit" class="btn btn-dark">Calculate Dispatch Type</button>
             {% csrf_token %}
@@ -104,7 +107,7 @@ $("#dispatchTypeForm").submit(function(e) {
             getNearbyCalls(data);
         },
         error: function(resp) {
-            console.log('An error occurred when retrieving nearby call data.');
+            console.error('An error occurred when retrieving nearby call data.');
             var error = '<div class="alert alert-danger mt-3" role="alert"><p class="mb-0">' + 
                 resp.responseJSON.message + ' Please try again.</p></div>';
             
