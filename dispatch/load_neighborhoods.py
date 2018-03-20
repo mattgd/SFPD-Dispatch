@@ -4,7 +4,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from metrics.models import Call
 import json
 
-neighborhoods = json.load(open('../data/neighborhoods.json'))
+neighborhoods = json.load(open('../data/sf_neighborhoods.json'))
 
 MULTIPOLYGON_COL = 8 # Index for the multipolygon object
 NEIGHBORHOOD_COL = 9 # Index for the neighborhood name
