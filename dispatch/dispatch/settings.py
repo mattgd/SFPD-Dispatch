@@ -141,10 +141,8 @@ STATICFILES_FINDERS = (
 )
 
 # GeoDjango library paths for Heroku
-GDAL_LIBRARY_PATH = os.environ['GDAL_LIBRARY_PATH']
-GEOS_LIBRARY_PATH = os.environ['GEOS_LIBRARY_PATH']
-#GDAL_LIBRARY_PATH = os.environ['GDAL_LIBRARY_PATH'] if 'GDAL_LIBRARY_PATH' in os.environ else None
-#GEOS_LIBRARY_PATH = os.environ['GEOS_LIBRARY_PATH'] if 'GEOS_LIBRARY_PATH' in os.environ else None
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
 
 django_heroku.settings(locals())
 
