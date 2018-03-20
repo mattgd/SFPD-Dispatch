@@ -15,7 +15,7 @@ pylint = "*"
 django = "*"
 gunicorn = "*"
 django-heroku = "*"
-"psycopg2" = "*"
+"psycopg2-binary" = "*"
 geopy = "*"
 
 
