@@ -19,6 +19,8 @@ header {
     color: #FFF;
     border-bottom: 3px solid #DEDEDE;
     background: url(/static/images/header.png);
+    background-size: cover;
+    background-position: center;
 }
 header h1 {
     font-weight: bold;
