@@ -13,6 +13,17 @@ ALTER ROLE dispatchuser SET timezone TO 'UTC';
 GRANT ALL PRIVILEGES ON DATABASE dispatch TO dispatchuser;
 ```
 
+### Add the PostGIS Extension
+
+1. Add psql to the PATH: `PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"`
+2. Connect to Heroku psql: `heroku pg:psql`
+3. Run the create extension command: `create extension postgis;`
+4. Exit psql: `\q`
+
+### Migrate Models from Django
+
+`python manage.py migrate`
+
 ### Uploading Data Using Fixtures
 
 On Heroku, login to bash using `heroku run bash` then navigate to `/dispatch`
@@ -38,10 +49,13 @@ DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
 Set the following config vars:
 ```
-GDAL_LIBRARY_PATH = /app/.heroku/vendor/lib/libgdal.so
-GEOS_LIBRARY_PATH = /app/.heroku/vendor/lib/libgeos_c.so
+GDAL_LIBRARY_PATH=/app/.heroku/vendor/lib/libgdal.so
+GEOS_LIBRARY_PATH=/app/.heroku/vendor/lib/libgeos_c.so
 UPDATE_DATABASE_ENGINE = True
 ```
+
+If GDAL and GEOS shared libraries are "not found", ensure `GDAL_LIBRARY_PATH` is set to
+`/app/.heroku/vendor/lib/libgdal.so` and `GEOS_LIBRARY_PATH` is set to `/app/.heroku/vendor/lib/libgeos_c.so`.
 
 ## virtualenv activate Script Edits
 
