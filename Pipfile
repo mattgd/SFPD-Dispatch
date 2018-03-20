@@ -15,10 +15,9 @@ pylint = "*"
 django = "*"
 gunicorn = "*"
 django-heroku = "*"
-"psycopg2-binary" = "*"
+psycopg2-binary = "*"
 geopy = "*"
 
 
 [requires]
-
-python_version = "python-3.6.4"
+python_full_version = "3.6.4"
