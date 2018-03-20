@@ -20,4 +20,5 @@ geopy = "*"
 
 
 [requires]
+
 python_full_version = "3.6.4"
