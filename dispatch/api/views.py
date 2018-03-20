@@ -11,6 +11,23 @@ from datetime import datetime, timedelta
 
 class NearbyView(View):
 
+    def parse_timestamp(self, text):
+        """
+        Format the time accepting multiple formats.
+        Returns the parsed datetime if valid and raise a ValueError if invalid.
+        """
+        valid_formats = [
+            '%H:%M:%S %p', '%H:%M:%S', '%H:%M %p', '%H:%M', '%H %p', '%H'
+        ]
+
+        for fmt in valid_formats:
+            try:
+                return datetime.strptime(text, fmt)
+            except ValueError:
+                pass
+
+        raise ValueError('Invalid timestamp format.')
+
     def post(self, request):
         """
         Post request receiver function for getting the most-likely dispatch type
@@ -40,8 +57,18 @@ class NearbyView(View):
 
                 # Check if time provided
                 if time:
-                    # Format the time: only need hour of day
-                    time = datetime.strptime(time, "%H:%M:%S")
+                    # Format the time: multiple formats accepts
+                    try:
+                        time = self.parse_timestamp(time)
+                    except ValueError:
+                        # Invalid time provided, 400 Bad Request
+                        return JsonResponse(
+                            {
+                                'status': 'false',
+                                'message': 'Invalid timestamp provided.'
+                            },
+                            status=400
+                        )
 
                     delta_hours = request.POST.get("delta_hours", 2)
                     delta_hours = timedelta(hours=delta_hours)
