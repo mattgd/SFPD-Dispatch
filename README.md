@@ -26,8 +26,8 @@ The current buildpack used to support the django-geo functionality is:
 Add the following to the `settings.py` file:
 ```
 # GeoDjango library paths for Heroku
-GDAL_LIBRARY_PATH = os.environ['GDAL_LIBRARY_PATH'] 
-GEOS_LIBRARY_PATH = os.environ['GEOS_LIBRARY_PATH']
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
 
 django_heroku.settings(locals())
 
