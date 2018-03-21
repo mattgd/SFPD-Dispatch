@@ -74,56 +74,73 @@ function createNeighborhoodTrendChart(data) {
     // Remove top status layer of data
     data = data.data;
 
-    // Create the Chart object
-    neighborhoodTrendsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
+    // The chart instance
+    var chart = window.neighTrendsChart;
+    
+    if (chart && chart != null) {
+        // Update the existing Chart object
+        chart.data = {
             labels: data["labels"],
             datasets: data["datasets"]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    stacked: false,
-                    ticks: {
+        };
+        
+        // Update limits
+        chart.options.scales.yAxes[0].ticks.max = data["limits"]["max"] + 2;
+        chart.options.scales.yAxes[1].ticks.max  = data["limits"]["max"] + 2;
+
+        chart.update();
+    } else {
+        // Create the Chart object
+        window.neighTrendsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data["labels"],
+                datasets: data["datasets"]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        stacked: false,
+                        ticks: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: data["limits"]["max"] + 2
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Total Number of Incidents'
+                        }
+                    }, {
+                        id: "bar-y-axis",
+                        stacked: true,
+                        display: false, //optional
+                        ticks: {
                         beginAtZero: true,
                         min: 0,
                         max: data["limits"]["max"] + 2
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Total Number of Incidents'
-                    }
-                  }, {
-                    id: "bar-y-axis",
-                    stacked: true,
-                    display: false, //optional
-                    ticks: {
-                      beginAtZero: true,
-                      min: 0,
-                      max: data["limits"]["max"] + 2
-                    },
-                    type: 'linear'
-                }],
-                xAxes:[{
-                    stacked: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Date'
-                    },
-                    ticks: {
-                        autoSkip: false
-                    }
-                }],
-            },
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Incident Trends for ' + data['neighborhood_district'],
-                fontSize: 16
+                        },
+                        type: 'linear'
+                    }],
+                    xAxes:[{
+                        stacked: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Date'
+                        },
+                        ticks: {
+                            autoSkip: false
+                        }
+                    }],
+                },
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Incident Trends for ' + data['neighborhood_district'],
+                    fontSize: 16
+                }
             }
-        }
-    });
+        });
+    }
 
     var results = $("#trendResults");
     results.fadeIn();

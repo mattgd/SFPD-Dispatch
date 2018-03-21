@@ -118,10 +118,6 @@ function initIncidentTables() {
     });
 }
 
-// Charts instance for neighborhood trends data
-// Used to destroy on form submit
-var neighborhoodTrendsChart;
-
 // Cache for the data to reduce POST request count
 var neighborhoodData = {};
 
@@ -147,11 +143,6 @@ $("#neighborhoodTrendForm").submit(function(e) {
             url: endpoint,
             data: form.serialize(),
             success: function(data) {
-                // Destroy the old chart if it exists
-                if (neighborhoodTrendsChart !== undefined) {
-                    neighborhoodTrendsChart.destroy;
-                }
-
                 // Cache the data
                 neighborhoodData[neighborhood] = data;
 
