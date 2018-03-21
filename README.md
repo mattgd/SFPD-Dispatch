@@ -1,7 +1,7 @@
 # SFPD-Dispatch
-SFPD dispatch web app for Capital One.
+SFPD Dispatch Analytics web app for Capital One's MindSumo challenge. Built using Python, Django (and GeoDjango), PostgreSQL, and JavaScript + jQuery and deployed on Heroku.
 
-## Setting Up the Database
+## Setting Up the Django Database
 ```
 CREATE DATABASE dispatch;
 CREATE USER dispatchuser WITH PASSWORD '<password>';
@@ -15,7 +15,7 @@ GRANT ALL PRIVILEGES ON DATABASE dispatch TO dispatchuser;
 
 ### Add the PostGIS Extension
 
-1. Add psql to the PATH: `PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"`
+1. Ensure psql is in the `PATH`. On Mac with `Postgres.app` this is `PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"`
 2. Connect to Heroku psql: `heroku pg:psql`
 3. Run the create extension command: `create extension postgis;`
 4. Exit psql: `\q`
@@ -32,7 +32,7 @@ and type: `python manage.py loaddata sfpd_dispatch_data_subset.json`.
 ## Heroku Geo Buildpack
 
 The current buildpack used to support the django-geo functionality is:
-`https://github.com/dschep/heroku-geo-buildpack.git`
+`https://github.com/mattgd/heroku-geo-buildpack.git`
 
 Add the following to the `settings.py` file:
 ```
@@ -59,7 +59,7 @@ If GDAL and GEOS shared libraries are "not found", ensure `GDAL_LIBRARY_PATH` is
 
 ## virtualenv activate Script Edits
 
-In order to support the environment variable requirements for this app, the
+In order to support the environment variable requirements locally for this app, the
 following environment variables should be set at the bottom of the bin/activate
 script:
 ```
