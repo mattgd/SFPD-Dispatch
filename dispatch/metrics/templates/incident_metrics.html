@@ -41,7 +41,7 @@
                 </select>
                 <small id="neighborhoodHelp" class="form-text text-muted">Select a neighborhood/district to chart.</small>
             </div>
-            <button type="submit" id="neighborhoodSubmit" class="btn btn-dark">Chart Neighborhood Trends</button>
+            <!--<button type="submit" id="neighborhoodSubmit" class="btn btn-dark">Chart Neighborhood Trends</button>-->
             {% csrf_token %}
         </form>
 
@@ -53,9 +53,9 @@
         <!-- End neighborhood trend results -->
 
         <p id="trendExample">
-            As shown by in the <i>Trends by Neighborhood</i> section, a majority
-            of Sunset/Parkside's incidents are Medical. In the future, it may be
-            worthwhile employing more medic units in the area.
+            As shown in the chart above, a majority of Sunset/Parkside's
+            incidents are Medical. In the future, it may be worthwhile employing
+            more medic units in the area.
         </p>
     </div>
     <!-- End most-likely dispatch type section -->
@@ -69,17 +69,19 @@
             Excludes citizen assistance/service calls, which are deemed non-dangerous.
         </p>
 
-        <table class="table table-striped table-responsive" id="incidentTable">
-            <thead>
-                <tr>
-                    <td>Neighborhood</td>
-                    <td>Number of Incidents</td>
-                    <td>Number of Calls</td>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped" id="incidentTable">
+                <thead>
+                    <tr>
+                        <td>Neighborhood</td>
+                        <td>Number of Incidents</td>
+                        <td>Number of Calls</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
     <!-- End Safest Neighborhoods by Number of Calls table section -->
 </div>
@@ -120,6 +122,9 @@ function initIncidentTables() {
 // Used to destroy on form submit
 var neighborhoodTrendsChart;
 
+// Cache for the data to reduce POST request count
+var neighborhoodData = {};
+
 // Initializes the incident tables
 initIncidentTables();
 
@@ -129,33 +134,41 @@ initIncidentTables();
  */
 $("#neighborhoodTrendForm").submit(function(e) {
     var endpoint = '/api/metrics/neighborhood-trends';
+    var form = $(this);
 
-    $.ajax({
-        method: "POST",
-        url: endpoint,
-        data: $("#neighborhoodTrendForm").serialize(),
-        success: function(data) {
-            // Destroy the old chart if it exists
-            if (neighborhoodTrendsChart !== undefined) {
-                neighborhoodTrendsChart.destroy;
+    // Check the cache for the data
+    var neighborhood = form.find('#neighborhood').val();
+    if (neighborhoodData[neighborhood] !== undefined) {
+        // Generate neighborhood trend chart
+        createNeighborhoodTrendChart(neighborhoodData[neighborhood]);
+    } else {
+        $.ajax({
+            method: "POST",
+            url: endpoint,
+            data: form.serialize(),
+            success: function(data) {
+                // Destroy the old chart if it exists
+                if (neighborhoodTrendsChart !== undefined) {
+                    neighborhoodTrendsChart.destroy;
+                }
+
+                // Cache the data
+                neighborhoodData[neighborhood] = data;
+
+                // Generate neighborhood trend chart
+                createNeighborhoodTrendChart(data);
+            },
+            error: function(resp) {
+                console.error('An error occurred when retrieving neighborhood trend data.');
+                var error = '<div class="alert alert-danger mt-3" role="alert"><p class="mb-0">' + 
+                    resp.responseJSON.message + ' Please try again.</p></div>';
+                
+                var results = $("#trendResults");
+                results.html(error);
+                results.fadeIn();
             }
-
-            // Generate neighborhood trend chart
-            createNeighborhoodTrendChart(data);
-
-            // Disable the submit button, to prevent unnecessary requests
-            $('#neighborhoodSubmit').prop('disabled', true);
-        },
-        error: function(resp) {
-            console.error('An error occurred when retrieving neighborhood trend data.');
-            var error = '<div class="alert alert-danger mt-3" role="alert"><p class="mb-0">' + 
-                resp.responseJSON.message + ' Please try again.</p></div>';
-            
-            var results = $("#trendResults");
-            results.html(error);
-            results.fadeIn();
-        }
-    });
+        });
+    }
 
     // Prevent form submit causing page change
     e.preventDefault();
@@ -165,14 +178,15 @@ $("#neighborhoodTrendForm").submit(function(e) {
  * Event listener to show/hide example trend analysis for Sunset/Parkside.
  */
 $('#neighborhood').change(function() {
-    // Re-enable the submit button, because a new chart can be generated
-    $('#neighborhoodSubmit').prop('disabled', false);
-
+    // Display the example trend text if Sunset/Parkside is selected.
     if ($(this).val() == 'Sunset/Parkside') {
         $('#trendExample').fadeIn();
     } else if ($('#trendExample').is(':visible')) {
         $('#trendExample').fadeOut();
     }
+
+    // Submit the form to show example data
+    $("#neighborhoodTrendForm").submit();
 });
 
 /**

@@ -47,18 +47,20 @@
             may reduce the response time significantly.
         </p>
 
-        <table class="table table-striped table-responsive" id="dispatchTimeTable">
-            <thead>
-                <tr>
-                    <td>Address</td>
-                    <td>Avg. Dispatch Time (h:mm:ss)</td>
-                    <td># of Calls</td>
-                    <td># of Incidents</td>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped" id="dispatchTimeTable">
+                <thead>
+                    <tr>
+                        <td>Address</td>
+                        <td>Avg. Dispatch Time (h:mm:ss)</td>
+                        <td># of Calls</td>
+                        <td># of Incidents</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div> 
     </div>
 </div>
 <div class="row">
@@ -76,16 +78,18 @@
     <div class="col-sm section-card">
         <h3>Addresses with the Most Calls Dispatched</h3>
 
-        <table class="table table-striped table-responsive" id="addressFreqTable">
-            <thead>
-                <tr>
-                    <td>Address</td>
-                    <td>Number of Calls</td>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped" id="addressFreqTable">
+                <thead>
+                    <tr>
+                        <td>Address</td>
+                        <td>Number of Calls</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
