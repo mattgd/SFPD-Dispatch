@@ -8,6 +8,7 @@ from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
 from django.contrib.gis.measure import D
 from datetime import datetime, timedelta
+from django.core.paginator import Paginator
 
 class NearbyView(View):
 
@@ -223,6 +224,16 @@ class SafestNeighborhoods(View):
             "Citizen Assist / Service Call"
         ]
 
+        # Retrieve GET parameters
+        #page = request.GET.get('page', 1)
+        #size = request.GET.get('size', 15)
+
+        # Get sort column
+        #valid_cols = [ 'incidents', 'calls', 'neighborhood_district']
+        #col = request.GET.get('col', 'incidents')
+        #if col not in valid_cols:
+        #    col = 'incidents'
+
         # Gets calls grouped by neighborhood and sorted by number of calls
         calls = Call.objects.exclude(
             call_type__in=excluded_types
@@ -230,6 +241,10 @@ class SafestNeighborhoods(View):
             calls=Count('pk'),
             incidents=Count('incident_number', distinct=True)
         ).order_by('incidents')
+
+        # Setup paginator
+        #paginator = Paginator(calls, size)
+        #calls = paginator.get_page(page)
         
         # Populates the data list for the JSON response
         data = []

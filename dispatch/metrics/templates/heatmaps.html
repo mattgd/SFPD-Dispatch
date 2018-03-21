@@ -47,19 +47,22 @@
             may reduce the response time significantly.
         </p>
 
-        <div class="table-responsive">
-            <table class="table table-striped" id="dispatchTimeTable">
+        <div class="table-responsive" id="dispatchTimeTableContainer">
+            <table class="table table-striped tablesorter" id="dispatchTimeTable">
                 <thead>
                     <tr>
-                        <td>Address</td>
-                        <td>Avg. Dispatch Time (h:mm:ss)</td>
-                        <td># of Calls</td>
-                        <td># of Incidents</td>
+                        <th>Address</th>
+                        <th>Avg. Dispatch Time (h:mm:ss)</th>
+                        <th># of Calls</th>
+                        <th># of Incidents</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
+
+            <!-- Pager -->
+            {% include 'pager.html' %}
         </div> 
     </div>
 </div>
@@ -78,18 +81,21 @@
     <div class="col-sm section-card">
         <h3>Addresses with the Most Calls Dispatched</h3>
 
-        <div class="table-responsive">
-            <table class="table table-striped" id="addressFreqTable">
+        <div class="table-responsive" id="addressFreqTableContainer">
+            <table class="table table-striped tablesorter" id="addressFreqTable">
                 <thead>
                     <tr>
-                        <td>Address</td>
-                        <td>Number of Calls</td>
+                        <th>Address</th>
+                        <th>Number of Calls</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
         </div>
+
+        <!-- Pager -->
+        {% include 'pager.html' %}
     </div>
 </div>
 {% endblock %}
@@ -97,8 +103,9 @@
 {% load static %}
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.tablesorter.pager.js' %}"></script>
 <script>
 var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
 </script>

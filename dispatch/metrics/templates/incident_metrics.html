@@ -70,18 +70,21 @@
             citizen assistance/service calls, which are deemed non-dangerous.
         </p>
 
-        <div class="table-responsive">
-            <table class="table table-striped" id="incidentTable">
+        <div class="table-responsive" id="incidentTableContainer">
+            <table class="table table-striped tablesorter" id="incidentTable">
                 <thead>
                     <tr>
-                        <td>Neighborhood</td>
-                        <td>Number of Incidents</td>
-                        <td>Number of Calls</td>
+                        <th>Neighborhood</th>
+                        <th>Number of Incidents</th>
+                        <th>Number of Calls</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
+            
+            <!-- Pager -->
+            {% include 'pager.html' %}
         </div>
     </div>
     <!-- End Safest Neighborhoods by Number of Calls table section -->
@@ -96,6 +99,8 @@
 <script type="text/javascript" src="{% static 'js/incident_charts.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.tablesorter.pager.js' %}"></script>
 <script type="text/javascript">
 /**
  * Initializes the incident tables.
@@ -111,7 +116,14 @@ function initIncidentTables() {
             // Setup pagination for the average safest neighborhoods table
             // The columns in the table
             var cols = ['neighborhood_district', 'incidents', 'calls'];
-            setupPagination($('#incidentTable'), data, cols);
+            loadTableData($('#incidentTable'), data, cols);
+
+            // Setup table sorting
+            $('#incidentTable').tablesorter(
+                { sortList: [[1,0]] }
+            ).tablesorterPager(
+                { container: '#incidentTableContainer' }
+            ); 
         },
         error: function(resp) {
             console.error("An error occured when retrieving safest neighborhoods data.");

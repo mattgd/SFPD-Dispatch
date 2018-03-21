@@ -32,7 +32,14 @@ function initHeatmaps() {
             // Setup pagination for the average dispatch time table
             // The columns in the table
             var cols = ['address', 'avg_dispatch_time', 'count', 'incident_count'];
-            setupPagination($('#dispatchTimeTable'), data, cols, 'incident_count');
+            loadTableData($('#dispatchTimeTable'), data, cols, 'incident_count');
+
+            // Setup table sorting
+            $('#dispatchTimeTable').tablesorter(
+                { sortList: [[1,1]] }
+            ).tablesorterPager(
+                { container: '#dispatchTimeTableContainer' }
+            ); 
         },
         error: function(resp) {
             console.error("An error occured when retrieving longest dispatch data.");
@@ -54,7 +61,14 @@ function initHeatmaps() {
             // Setup pagination for the dispatch call address frequency table
             // The columns in the table
             var cols = ['address', 'count'];
-            setupPagination($('#addressFreqTable'), data, cols);
+            loadTableData($('#addressFreqTable'), data, cols);
+
+            // Setup table sorting
+            $('#addressFreqTable').tablesorter(
+                { sortList: [[1,0]] }
+            ).tablesorterPager(
+                { container: '#addressFreqTableContainer' }
+            ); 
         },
         error: function(resp) {
             console.error("An error occured when retrieving longest dispatch data.");

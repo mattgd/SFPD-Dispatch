@@ -30,37 +30,28 @@ function createTableDataRow(call, cols, highlightCol = undefined) {
 }
 
 /**
- * Sets up pagination for the provided tableSelector.
+ * Load table data for the provided tableSelector.
  * @param {*} tableSelector The jQuery selector object.
  * @param {*} data The data to put in the table.
  * @param {*} cols The table columns to fill.
  * @param {*} highlightCol The column to check for highlighting.
  */
-function setupPagination(tableSelector, data, cols, highlightCol) {
+function loadTableData(tableSelector, data, cols, highlightCol) {
     if (tableSelector === undefined) {
         console.error("An error occurred when trying to set up table pagination.");
         return;
     }
 
-    tableSelector.pagination({
-        dataSource: data,
-        locator: 'data',
-        pageSize: 20,
-        prevText: 'Previous',
-        nextText: 'Next',
-        callback: function(data, pagination) {
-            var htmlContent = '';
+    var htmlContent = '';
+    data = data.data;
+    // Get the table row content for each call
+    for (var i = 0; i < data.length; i++) {
+        call = data[i];
 
-            // Get the table row content for each call
-            for (var i = 0; i < data.length; i++) {
-                call = data[i];
-
-                // Add the call data to the table
-                htmlContent += createTableDataRow(call, cols, highlightCol);
-            }
-
-            // Inject the HTML
-            tableSelector.find('tbody').html(htmlContent);
-        }
-    });
+        // Add the call data to the table
+        htmlContent += createTableDataRow(call, cols, highlightCol);
+    }
+    
+    // Inject the HTML
+    tableSelector.find('tbody').html(htmlContent);
 }
