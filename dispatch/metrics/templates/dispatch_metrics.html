@@ -10,31 +10,7 @@
 
 <!-- Metric charts HTML -->
 <div class="row">
-    <!-- Average Response Time Per Call Type Group chart section -->
-    <div class="col-sm section-card">
-        <h3>Average Response Time Per Call Type Group</h3>
-        <p>
-            Average duration from the time the call was received to time the 
-            emergency unit was enroute.
-        </p>
-        <hr />
-
-        <canvas id="typeResponseTime" height="300" width="auto"></canvas>
-    </div>
-    <!-- End Average Response Time Per Call Type Group chart section -->
-
-    <!-- Average Calls Per Hour chart section -->
-    <div class="col-sm section-card">
-        <h3>Average Calls Per Hour</h3>
-        <p>Average number of calls per hour of the day.</p>
-        <hr />
-
-        <canvas id="avgCallsPerHour" height="300" width="auto"></canvas>
-    </div>
-    <!-- End Average Calls Per Hour chart section -->
-</div>
-<div class="row">
-    <!-- Number of Calls by Battalion chart section -->
+    <!-- Battalion metrics section -->
     <div class="col-sm section-card">
         <ul class="nav nav-pills nav-fill" id="battalionTab" role="tablist">
             <li class="nav-item">
@@ -89,7 +65,31 @@
             </div>
         </div>
     </div>
-    <!-- End Number of Calls by Battalion chart section -->
+    <!-- End battalion metrics section -->
+
+    <!-- Average Calls Per Hour chart section -->
+    <div class="col-sm section-card">
+        <h3>Average Calls Per Hour</h3>
+        <p>Average number of calls per hour of the day.</p>
+        <hr />
+
+        <canvas id="avgCallsPerHour" height="300" width="auto"></canvas>
+    </div>
+    <!-- End Average Calls Per Hour chart section -->
+</div>
+<div class="row">
+    <!-- Average Response Time Per Call Type Group chart section -->
+    <div class="col-sm section-card">
+        <h3>Average Response Time Per Call Type Group</h3>
+        <p>
+            Average duration from the time the call was received to time the 
+            emergency unit was enroute.
+        </p>
+        <hr />
+
+        <canvas id="typeResponseTime" height="300" width="auto"></canvas>
+    </div>
+    <!-- End Average Response Time Per Call Type Group chart section -->
 
     <!-- Most-likely dispatch type section -->
     <div class="col-sm section-card">
@@ -144,8 +144,7 @@ $("#dispatchTypeForm").submit(function(e) {
         url: endpoint,
         data: $("#dispatchTypeForm").serialize(),
         success: function(data) {
-            // Get nearby calls
-            getNearbyCalls(data);
+            getNearbyCalls(data); // Get nearby calls
         },
         error: function(resp) {
             console.error('An error occurred when retrieving nearby call data.');

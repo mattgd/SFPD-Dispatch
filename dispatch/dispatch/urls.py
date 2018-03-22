@@ -22,8 +22,8 @@ from api.views import (AddressFrequency, Battalions, NearbyView,
     LongestDispatch, Neighborhoods, SafestNeighborhoods)
 
 urlpatterns = [
-    # Admin view
-    path('admin/', admin.site.urls),
+    # Admin view (disabled)
+    #path('admin/', admin.site.urls),
 
     # Page views
     url(r'^$', Home.as_view(), name='home'),

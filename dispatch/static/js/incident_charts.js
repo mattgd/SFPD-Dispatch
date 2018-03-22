@@ -148,3 +148,105 @@ function createNeighborhoodTrendChart(data) {
 
 // Call the createCharts function
 createCharts();
+
+/** BEGIN CODE FOR NEIGHBORHOOD TREND FORM **/
+// Cache for the data to reduce POST request count
+var neighborhoodData = {};
+
+/**
+ * Event listener for the neighborhood trend form to get the data
+ * and generate the chart.
+ */
+$("#neighborhoodTrendForm").submit(function(e) {
+    var endpoint = '/api/metrics/neighborhood-trends';
+    var form = $(this);
+
+    // Check the cache for the data
+    var neighborhood = form.find('#neighborhood').val();
+    if (neighborhoodData[neighborhood] !== undefined) {
+        // Generate neighborhood trend chart
+        createNeighborhoodTrendChart(neighborhoodData[neighborhood]);
+    } else {
+        $.ajax({
+            method: "POST",
+            url: endpoint,
+            data: form.serialize(),
+            success: function(data) {
+                // Cache the data
+                neighborhoodData[neighborhood] = data;
+
+                // Generate neighborhood trend chart
+                createNeighborhoodTrendChart(data);
+            },
+            error: function(resp) {
+                console.error('An error occurred when retrieving neighborhood trend data.');
+                var error = '<div class="alert alert-danger mt-3" role="alert"><p class="mb-0">' + 
+                    resp.responseJSON.message + ' Please try again.</p></div>';
+                
+                var results = $("#trendResults");
+                results.html(error);
+                results.fadeIn();
+            }
+        });
+    }
+
+    // Prevent form submit causing page change
+    e.preventDefault();
+});
+
+/**
+ * Event listener to show/hide example trend analysis for Sunset/Parkside.
+ */
+$('#neighborhood').change(function() {
+    // Display the example trend text if Sunset/Parkside is selected.
+    if ($(this).val() == 'Sunset/Parkside') {
+        $('#trendExample').fadeIn();
+    } else if ($('#trendExample').is(':visible')) {
+        $('#trendExample').fadeOut();
+    }
+
+    // Submit the form to show example data
+    $("#neighborhoodTrendForm").submit();
+});
+
+/**
+ * Populates the list of neighborhoods in the neighborhoodTrendForm for
+ * user selection.
+ */
+ function populateNeighborhoodList() {
+    var endpoint = '/api/calls/neighborhoods';
+    
+    $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data) {
+            // Remove top status layer of data
+            data = data.data;
+
+            var neigh; // Holds the name of the neighborhood
+            var optionHtml; // The option HTML element
+            for (var i = 0; i < data.length; i++) {
+                neigh = data[i];
+                
+                // Pre-select Sunset/Parkside for example
+                if (neigh != 'Sunset/Parkside') {
+                    optionHtml = '<option value="' + neigh + '">' + neigh + '</option>';
+                } else {
+                    optionHtml = '<option value="' + neigh + '" selected>' + neigh + '</option>';
+                }
+                
+                // Add to the select element
+                $('#neighborhood').append(optionHtml);
+            }
+            
+            // Submit the form to show example data
+            $("#neighborhoodTrendForm").submit();
+        },
+        error: function(resp) {
+            console.error('An error occurred when retrieving the neighborhood list.');
+        }
+    });
+}
+
+// Populates the neighborhood list in the neighborhoodTrendForm
+populateNeighborhoodList();
