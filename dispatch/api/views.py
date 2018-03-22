@@ -40,7 +40,7 @@ class NearbyView(View):
         # Check if an address was provided
         if address:
             # Append city and state if only address line provided
-            if ',' and 'San Francisco' not in address:
+            if ',' not in address and 'San Francisco' not in address:
                 address += ', San Francisco, CA'
 
             # Get location from address
