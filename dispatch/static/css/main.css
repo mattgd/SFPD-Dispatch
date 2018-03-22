@@ -147,6 +147,10 @@ table.table thead tr td {
 .tablesorter .filtered {
     display: none;
 }
+/* Zebra styling */
+table.tablesorter tbody tr.odd td {
+    background-color: rgba(0,0,0,.05);
+}
 /* Pager styling */
 .pager select.form-control {
     width: unset;
