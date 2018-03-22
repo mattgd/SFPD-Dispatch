@@ -63,6 +63,13 @@ header .nav li a:hover {
     margin-bottom: 0;
 }
 
+/* Tab navigation styline */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: #343a40 !important;
+    border-color: #343a40;
+}
+
 /* Footer styling */
 footer {
     background: #333;

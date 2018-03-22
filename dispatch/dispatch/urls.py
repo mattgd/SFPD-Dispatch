@@ -18,7 +18,8 @@ from django.urls import path
 from django.conf.urls import url
 from metrics.views import (AverageCallsPerHour, AverageResponseTime,
     BattalionDistribution, Home, Heatmaps, IncidentMetrics, NeighborhoodTrends)
-from api.views import AddressFrequency, NearbyView, LongestDispatch, Neighborhoods, SafestNeighborhoods
+from api.views import (AddressFrequency, Battalions, NearbyView,
+    LongestDispatch, Neighborhoods, SafestNeighborhoods)
 
 urlpatterns = [
     # Admin view
@@ -35,6 +36,7 @@ urlpatterns = [
     url(r'^api/calls/longest-dispatch$', LongestDispatch.as_view(), name='api-calls-longest-dispatch'),
     url(r'^api/calls/safest-neighborhoods$', SafestNeighborhoods.as_view(), name='api-calls-safest-neighborhoods'),
     url(r'^api/calls/neighborhoods$', Neighborhoods.as_view(), name='api-calls-neighborhoods'),
+    url(r'^api/calls/battalions$', Battalions.as_view(), name='api-calls-battalions'),
 
     # Metrics charts views
     url(r'^api/metrics/calls-per-hour$', AverageCallsPerHour.as_view(), name='metrics-calls-per-hour'),

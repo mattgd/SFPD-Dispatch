@@ -8,8 +8,8 @@ function createCharts() {
     // Create the average calls per hour chart
     createAvgCallsPerHourChart();
 
-    // Create the battalion distribution chart
-    createBattalionDistribChart();
+    // Create the overall battalion distribution chart
+    createBattalionDistribBarChart();
 }
 
 /**
@@ -164,7 +164,7 @@ function createGroupRespTimeChart() {
 /**
  * Creates the Chart.js chart for the battalion distribution chart.
  */
-function createBattalionDistribChart() {
+function createBattalionDistribBarChart() {
     var endpoint = '/api/metrics/battalion-dist';
 
     $.ajax({
@@ -231,6 +231,135 @@ function createBattalionDistribChart() {
         }
     });
 }
+
+/**
+ * Creates the Chart.js chart for average calls per hour chart.
+ */
+function createBattalionDistChart(data) {
+    var ctx = $("#battalionDistChart");
+
+    // Remove top status layer of data
+    data = data.data;
+
+    // The chart instance
+    var chart = window.batDistChart;
+    
+    if (chart && chart != null) {
+        // Update the existing Chart object
+        chart.data = {
+            labels: data["labels"],
+            datasets: [data["dataset"]]
+        };
+
+        // Update title
+        chart.options.title.text = 'Call Type Distribution for Battalion ' + data['battalion']
+        
+        chart.update();
+    } else {
+        // Create the Chart object
+        window.batDistChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data["labels"],
+                datasets: [data["dataset"]]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Call Type Distribution for Battalion ' + data['battalion'],
+                    fontSize: 16
+                },
+                tooltips: {
+                    enabled: true,
+                    mode: 'single',
+                    callbacks: {
+                        label: function(tooltipItems, data) {
+                            
+                            var label = data.labels[tooltipItems.index];
+
+                            
+
+                            // Get the dataset
+                            var dataset = data.datasets[tooltipItems.datasetIndex];
+
+                            // Calculate the total of this data set
+                            var total = dataset.data.reduce(function(previousValue, currentValue, currentIndex, array) {
+                                return previousValue + currentValue;
+                            });
+
+                            // Get the current item's value
+                            var currentValue = dataset.data[tooltipItems.index];
+
+                            // Calculate the percentage
+                            var percentage = (currentValue / total) * 100 + 0.5;
+
+                            // Return the formatted tooltip
+                            return label + ': ' +  currentValue + (
+                                ' (' + percentage.toFixed(1) + '%)'
+                            );
+                        }
+                    }
+                },
+            }
+        });
+    }
+
+    var results = $("#trendResults");
+    results.fadeIn();
+}
+
+// Cache for the data to reduce POST request count
+var battalionData = {};
+
+/**
+ * Event listener for the specific battalion distribution form to get the data
+ * and generate the chart.
+ */
+$("#battalionDistForm").submit(function(e) {
+    var endpoint = '/api/metrics/battalion-dist';
+    var form = $(this);
+
+    // Check the cache for the data
+    var battalion = form.find('#battalion').val();
+    if (battalionData[battalion] !== undefined) {
+        // Generate battalion distribution chart
+        createBattalionDistChart(battalionData[battalion]);
+    } else {
+        $.ajax({
+            method: "POST",
+            url: endpoint,
+            data: form.serialize(),
+            success: function(data) {
+                // Cache the data
+                battalionData[battalion] = data;
+
+                // Generate neighborhood trend chart
+                createBattalionDistChart(data);
+            },
+            error: function(resp) {
+                console.error('An error occurred when retrieving battalion distribution data.');
+                var error = '<div class="alert alert-danger mt-3" role="alert"><p class="mb-0">' + 
+                    resp.responseJSON.message + ' Please try again.</p></div>';
+                
+                var results = $("#trendResults");
+                results.html(error);
+                results.fadeIn();
+            }
+        });
+    }
+
+    // Prevent form submit causing page change
+    e.preventDefault();
+});
+
+/**
+ * Event listener to show/hide example trend analysis for Sunset/Parkside.
+ */
+$('#battalion').change(function() {
+    // Submit the form to get new chart data
+    $("#battalionDistForm").submit();
+});
 
 // Call the createCharts function
 createCharts();

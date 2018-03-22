@@ -282,3 +282,22 @@ class Neighborhoods(View):
                 'data': data
             }
         )
+
+class Battalions(View):
+
+    def get(self, request):
+        """
+        Returns JSON representing a list of the neighborhoods/districts.
+        """
+        # Gets list of battalions
+        battalions = Call.objects.values('battalion').distinct().order_by('battalion')
+        
+        # Populates the data list for the JSON response
+        data = [b["battalion"] for b in battalions]
+
+        return JsonResponse(
+            {
+                'status': 'true',
+                'data': data
+            }
+        )

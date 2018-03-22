@@ -194,6 +194,60 @@ class BattalionDistribution(View):
             }
         )
 
+    def post(self, request):
+        """
+        Returns JSON representing the chart data for a specific battalion's
+        call_type disribution.
+        """
+        response = None
+        battalion = request.POST.get('battalion')
+
+        if battalion:
+            # Gets calls grouped by type
+            calls = Call.objects.filter(battalion=battalion).values(
+                'call_type'
+            ).annotate(
+                call_count=Count('pk')
+            ).order_by('call_type')
+            
+            # Populates the data list for the JSON response
+            colors = get_colors(calls.count(), 0.8)
+            data = {
+                "battalion": battalion,
+                "total_calls": 0,
+                "labels": [],
+                "dataset": {
+                    "data": [],
+                    "backgroundColor": colors,
+                    "borderWidth": 0
+                }
+            }
+
+            for call in calls:
+                count = call["call_count"]
+                data["labels"].append(call["call_type"])
+                data["dataset"]["data"].append(count)
+                data["total_calls"] += count
+
+            # Return the JSON response
+            response = JsonResponse(
+                {
+                    'status': 'true',
+                    'data': data
+                }
+            )
+        else:
+            # No time provided, 400 Bad Request
+            response = JsonResponse(
+                {
+                    'status': 'false',
+                    'message': 'Invalid battalion.'
+                },
+                status=400
+            )
+
+        return response
+
 class NeighborhoodTrends(View):
 
     def get(self, request):

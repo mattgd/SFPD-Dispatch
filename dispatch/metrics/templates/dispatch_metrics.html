@@ -36,14 +36,58 @@
 <div class="row">
     <!-- Number of Calls by Battalion chart section -->
     <div class="col-sm section-card">
-        <h3>Number of Calls by Battalion</h3>
-        <p>
-            Using this data can help the SFPD make educated decisions on which
-            battalions may need more allocated resources.
-        </p>
-        <hr />
-
-        <canvas id="battalionDistrib" height="300" width="auto"></canvas>
+        <ul class="nav nav-pills nav-fill" id="battalionTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="battalion-calls-tab" 
+                data-toggle="tab" href="#battalion-calls" role="tab" aria-controls="battalion-calls" aria-selected="true">
+                    Number of Calls by Battalion
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="battalion-dist-tab" data-toggle="tab"
+                href="#battalion-dist" role="tab" aria-controls="battalion-dist" aria-selected="false">
+                    Battalion Call Type Distribution
+                </a>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="battalionTabContent">
+            <div class="tab-pane fade show active" id="battalion-calls" 
+            role="tabpanel" aria-labelledby="battalion-calls-tab">
+                <h3 class="mt-3">Number of Calls by Battalion</h3>
+                <p>
+                    Using this data can help the SFPD make educated decisions on which
+                    battalions may need more allocated resources.
+                </p>
+                <hr />
+        
+                <canvas id="battalionDistrib" height="300" width="auto"></canvas>
+            </div>
+            <div class="tab-pane fade" id="battalion-dist" role="tabpanel" 
+            aria-labelledby="battalion-dist-tab">
+                <h3 class="mt-3">Battalion Call Type Distribution</h3>
+                
+                <form id="battalionDistForm" method="post">
+                    <div class="form-group">
+                        <label for="battalion">
+                            Select a battalion below to chart its call type
+                            distribution.
+                        </label>
+                        <select name="battalion" class="custom-select" id="battalion" aria-describedby="battalionHelp">
+                        </select>
+                        <small id="battalionHelp" class="form-text text-muted">Select a battalion to chart.</small>
+                    </div>
+                    {% csrf_token %}
+                </form>
+        
+                <!-- Battalion distribution results -->
+                <div id="trendResults" style="display:none;">
+                    <hr />
+                    <canvas id="battalionDistChart" height="300" width="auto"></canvas>
+                </div>
+                <!-- End battalion distribution results -->
+            </div>
+        </div>
     </div>
     <!-- End Number of Calls by Battalion chart section -->
 
@@ -133,5 +177,41 @@ function getNearbyCalls(data) {
     results.html(nearbyData);
     results.fadeIn();
 }
+
+/**
+ * Populates the list of battalions in the battalionDistForm for
+ * user selection.
+ */
+ function populateBattalionList() {
+    var endpoint = '/api/calls/battalions';
+    
+    $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data) {
+            // Remove top status layer of data
+            data = data.data;
+
+            var battalion; // Holds the name of the neighborhood
+            var optionHtml; // The option HTML element
+            for (var i = 0; i < data.length; i++) {
+                battalion = data[i];
+                optionHtml = '<option value="' + battalion + '">' + battalion + '</option>';
+                
+                // Add to the select element
+                $('#battalion').append(optionHtml);
+            }
+            
+            // Submit the form to show example data
+            $("#battalionDistForm").submit();
+        },
+        error: function(resp) {
+            console.error('An error occurred when retrieving the battalion list.');
+        }
+    });
+}
+
+// Populates the battalions list in the battalionDistForm
+populateBattalionList();
 </script>
 {% endblock %}
