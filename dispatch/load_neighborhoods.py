@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.geos import GEOSGeometry
 from metrics.models import Call
 import json
@@ -10,6 +9,10 @@ MULTIPOLYGON_COL = 8 # Index for the multipolygon object
 NEIGHBORHOOD_COL = 9 # Index for the neighborhood name
 
 def populate_neighborhood_district():
+    """
+    Populates the neighborhood_district field for all Calls model objects using
+    the sf_neighborhoods data.
+    """
     calls = Call.objects.all()
 
     for call in calls:

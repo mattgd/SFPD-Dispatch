@@ -89,39 +89,3 @@
     <!-- End Safest Neighborhoods by Number of Calls table section -->
 </div>
 {% endblock %}
-
-{% load static %}
-{% block scripts %}
-{{ block.super }}
-<script type="text/javascript">
-/**
- * Initializes the incident tables.
- */
-function initIncidentTables() {
-    // Retrieves the longest average dispatch time data,
-    // and initializes the longest-dispatch heatmap.
-    var endpoint = '/api/calls/safest-neighborhoods';
-    $.ajax({
-        method: 'GET',
-        url: endpoint,
-        success: function(data) {
-            // Setup pagination for the average safest neighborhoods table
-            // The columns in the table
-            var cols = ['neighborhood_district', 'incidents', 'calls'];
-            loadTableData($('#incidentTable'), data, cols);
-
-            // Setup table sorting
-            $('#incidentTable').tablesorter(
-                getSorterOptions([[1,0]])
-            ).tablesorterPager(getPagerOptions($('#incidentTablePager')));
-        },
-        error: function(resp) {
-            console.error("An error occured when retrieving safest neighborhoods data.");
-        }
-    });
-}
-
-// Initializes the incident tables
-initIncidentTables();
-</script>
-{% endblock %}

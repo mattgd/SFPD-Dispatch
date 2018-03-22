@@ -7,7 +7,8 @@ function createCharts() {
 }
 
 /**
- * Creates the Chart.js chart for average calls per hour chart.
+ * Retrieves data for a creates the Chart.js
+ * chart for incidents per day chart.
  */
 function createIncidentsPerDayChart() {
     var endpoint = '/api/metrics/neighborhood-trends';
@@ -66,7 +67,8 @@ function createIncidentsPerDayChart() {
 }
 
 /**
- * Creates the Chart.js chart for average calls per hour chart.
+ * Creates the Chart.js chart for the neighborhood trends chart.
+ * @param {Object} data The JSON data for the chart.
  */
 function createNeighborhoodTrendChart(data) {
     var ctx = $("#neighborhoodTrendsChart");
@@ -146,8 +148,7 @@ function createNeighborhoodTrendChart(data) {
     results.fadeIn();
 }
 
-// Call the createCharts function
-createCharts();
+createCharts(); // Call the createCharts function to load the charts
 
 /** BEGIN CODE FOR NEIGHBORHOOD TREND FORM **/
 // Cache for the data to reduce POST request count
@@ -210,8 +211,8 @@ $('#neighborhood').change(function() {
 });
 
 /**
- * Populates the list of neighborhoods in the neighborhoodTrendForm for
- * user selection.
+ * Populates the list of neighborhoods in the
+ * neighborhoodTrendForm for user selection.
  */
  function populateNeighborhoodList() {
     var endpoint = '/api/calls/neighborhoods';
@@ -250,3 +251,33 @@ $('#neighborhood').change(function() {
 
 // Populates the neighborhood list in the neighborhoodTrendForm
 populateNeighborhoodList();
+
+/**
+ * Initializes the safest neighborhoods table.
+ */
+function initIncidentTables() {
+    // Retrieves the longest average dispatch time data,
+    // and initializes the longest-dispatch heatmap.
+    var endpoint = '/api/calls/safest-neighborhoods';
+    $.ajax({
+        method: 'GET',
+        url: endpoint,
+        success: function(data) {
+            // Setup pagination for the average safest neighborhoods table
+            // The columns in the table
+            var cols = ['neighborhood_district', 'incidents', 'calls'];
+            loadTableData($('#incidentTable'), data, cols);
+
+            // Setup table sorting
+            $('#incidentTable').tablesorter(
+                getSorterOptions([[1,0]])
+            ).tablesorterPager(getPagerOptions($('#incidentTablePager')));
+        },
+        error: function(resp) {
+            console.error("An error occured when retrieving safest neighborhoods data.");
+        }
+    });
+}
+
+// Initializes the incident tables
+initIncidentTables();

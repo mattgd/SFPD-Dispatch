@@ -38,7 +38,7 @@ urlpatterns = [
     url(r'^api/calls/neighborhoods$', Neighborhoods.as_view(), name='api-calls-neighborhoods'),
     url(r'^api/calls/battalions$', Battalions.as_view(), name='api-calls-battalions'),
 
-    # Metrics charts views
+    # Metrics chart views
     url(r'^api/metrics/calls-per-hour$', AverageCallsPerHour.as_view(), name='metrics-calls-per-hour'),
     url(r'^api/metrics/battalion-dist$', BattalionDistribution.as_view(), name='metrics-battalion-dist'),
     url(r'^api/metrics/group-response-time$', AverageResponseTime.as_view(), name='metrics-group-response-time'),

@@ -1,7 +1,7 @@
 /**
  * Returns an Array of rgba colors to chart bar background colors.
- * @param {*} amount The number of colors to return (currently a max of 11).
- * @returns an Array of rgba colors to chart bar background colors.
+ * @param {number} amount The number of colors to return (currently a max of 11).
+ * @returns {string[]} An Array of rgba colors to chart bar background colors.
  */
 function getBackgroundColors(amount) {
     var bgColors = [
@@ -23,8 +23,8 @@ function getBackgroundColors(amount) {
 
 /**
  * Returns an Array of rgba colors to chart bar border colors.
- * @param {*} amount The number of colors to return (currently a max of 11).
- * @returns an Array of rgba colors to chart bar border colors.
+ * @param {number} amount The number of colors to return (currently a max of 11).
+ * @returns {string[]} An Array of rgba colors to chart bar border colors.
  */
 function getBorderColors(amount) {
     var borderColors = getBackgroundColors(amount);

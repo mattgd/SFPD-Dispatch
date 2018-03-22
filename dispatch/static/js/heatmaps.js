@@ -77,9 +77,9 @@ function initHeatmaps() {
 /**
  * Created WeightedLocation objects from the API data for the heatmap layer
  * and adds the heatmap layer to the map.
- * @param {*} map The map to add the heatmap layer to.
- * @param {*} heatmap The heatmap layer instance.
- * @param {*} data The data to use as points.
+ * @param {Object} map The map to add the heatmap layer to.
+ * @param {Object} heatmap The heatmap layer instance.
+ * @param {Object} data The data to use as points.
  */
 function addHeatmapLayer(map, heatmap, data) {
     var points = Array();
@@ -109,7 +109,7 @@ function addHeatmapLayer(map, heatmap, data) {
 
 /**
  * Sets the custom dark map type.
- * @param {*} map The map to set the type for.
+ * @param {Object} map The map to set the type for.
  */
 function setDarkMap(map) {
     map.mapTypes.set('dark_map', getDarkMap());
@@ -119,7 +119,7 @@ function setDarkMap(map) {
 /**
  * Returns a new StyledMapType object which represents the
  * custom dark map type for the heatmaps.
- * @returns StyledMapType object.
+ * @returns {google.maps.StyledMapType} StyledMapType object.
  */
 function getDarkMap() {
     return new google.maps.StyledMapType(

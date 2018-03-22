@@ -2,14 +2,11 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.conf.urls.static import static
-from django.db.models import Avg, Count, F, TimeField, OuterRef, Sum, Subquery
-from django.db.models.functions import Cast, TruncDay, TruncHour, ExtractWeek
+from django.db.models import Avg, Count, F
+from django.db.models.functions import TruncDay, TruncHour
 
-from geopy.geocoders import Nominatim
-from django.contrib.gis import geos
 import datetime
 import re
-import itertools
 
 from .models import Call
 
@@ -18,13 +15,13 @@ class Home(View):
     Class-based view for the home page.
     """
     def get(self, request, *args, **kwargs):
-        # Render the page
+        # Render the page with the necessary scripts as context
         return render(request, 'dispatch_metrics.html', {
             'title': 'Dispatch Metrics',
             'scripts': [
                 'js/Chart.bundle.min.js',
                 'js/chart_utils.js',
-                'js/metrics_charts.js'
+                'js/dispatch_metrics.js'
             ]
         })
 
@@ -33,14 +30,14 @@ class Heatmaps(View):
     Class-based view for the heatmaps page.
     """
     def get(self, request, *args, **kwargs):
-        # Render the page
+        # Render the page with the necessary scripts as context
         return render(request, 'heatmaps.html', {
             'title': 'Heatmaps',
             'scripts': [
                 'js/jquery.tablesorter.combined.min.js',
                 'js/jquery.tablesorter.pager.min.js',
                 'js/metrics_tables.js',
-                'js/metrics_heatmaps.js'
+                'js/heatmaps.js'
             ]
         })
 
@@ -49,7 +46,7 @@ class IncidentMetrics(View):
     Class-based view for the incident metrics page.
     """
     def get(self, request, *args, **kwargs):
-        # Render the page
+        # Render the page with the necessary scripts as context
         return render(request, 'incident_metrics.html', {
             'title': 'Incident Metrics',
             'scripts': [
@@ -58,7 +55,7 @@ class IncidentMetrics(View):
                 'js/jquery.tablesorter.combined.min.js',
                 'js/jquery.tablesorter.pager.min.js',
                 'js/metrics_tables.js',
-                'js/incident_charts.js'
+                'js/incident_metrics.js'
             ]
         })
 
@@ -78,9 +75,7 @@ class AverageResponseTime(View):
 
         # Get calls grouped by call_type_group and calculate the average
         # dispatch time for each group.
-        calls = Call.objects.values(
-            'call_type_group'
-        ).annotate(
+        calls = Call.objects.values('call_type_group').annotate(
             avg_dispatch_time=Avg(F('dispatch_timestamp') - F('received_timestamp'))
         ).order_by('-avg_dispatch_time')
 
@@ -91,10 +86,10 @@ class AverageResponseTime(View):
             # Truncate life-threatening groups
             group = re.sub(r'([tT]hreatening)', 'Threat.', group)
             
-            data["labels"].append(group)
+            data["labels"].append(group) # Add the label
 
             seconds = call["avg_dispatch_time"].seconds
-            data["data"].append(round(seconds / 60, 2))
+            data["data"].append(round(seconds / 60, 2)) # Add the time
 
         # Return the JSON response
         return JsonResponse(
@@ -121,9 +116,7 @@ class AverageCallsPerHour(View):
         day_calls = Call.objects.annotate(
             hour=TruncHour('received_timestamp'),
             day=TruncDay('received_timestamp'),
-        ).values('day', 'hour').annotate(
-            count=Count('pk')
-        ).order_by('hour')
+        ).values('day', 'hour').annotate(count=Count('pk')).order_by('hour')
 
         # Creates a list to hold the total calls for each hour of the day
         hours = [0] * 24
@@ -212,6 +205,8 @@ class BattalionDistribution(View):
             
             # Populates the data list for the JSON response
             colors = get_colors(calls.count(), 0.8)
+
+            # Create the basic dictionary structure
             data = {
                 "battalion": battalion,
                 "total_calls": 0,
@@ -223,6 +218,7 @@ class BattalionDistribution(View):
                 }
             }
 
+            # Append data for each call in the QuerySet
             for call in calls:
                 count = call["call_count"]
                 data["labels"].append(call["call_type"])
@@ -255,12 +251,15 @@ class NeighborhoodTrends(View):
         Returns JSON representing a list of each neighborhood and the number
         of calls per day over the data time period.
         """
+        # Top 5 most populous neighborhoods
         neighborhoods = [
             "Mission", "Western Addition", "Sunset/Parkside",
             "Financial District/South Beach", "South of Market"
         ]
         # Gets calls grouped by day and neighborhood
-        calls = Call.objects.filter(neighborhood_district__in=neighborhoods).values(
+        calls = Call.objects.filter(
+            neighborhood_district__in=neighborhoods
+        ).values(
             'call_date', 'neighborhood_district'
         ).annotate(
             calls=Count('pk'),
@@ -273,7 +272,10 @@ class NeighborhoodTrends(View):
             "datasets": {}
         }
 
+        # Used to index off of the colors lists and ensure different colors
         count = 0
+
+        # Get the chart colors
         bgColors = get_colors(len(neighborhoods), 0.4)
         borderColors = get_colors(len(neighborhoods), 1)
 
@@ -316,6 +318,7 @@ class NeighborhoodTrends(View):
         response = None
         neighborhood = request.POST.get('neighborhood')
 
+        # Ensure neighborhood value provided
         if neighborhood:
             # Gets calls grouped by day and type
             calls = Call.objects.filter(neighborhood_district=neighborhood).values(
@@ -355,7 +358,7 @@ class NeighborhoodTrends(View):
             }
             
             # Organize data into chart-compatible format
-            count = 0
+            count = 0 # Index for unique chart colors
             incident_count = None
             total_incidents = []
             for call_type in types:
@@ -367,6 +370,7 @@ class NeighborhoodTrends(View):
                     "yAxisID": "bar-y-axis",
                 }
 
+                # Adds the incident count for each call type for each day
                 for date in dates:
                     if call_type in data[date]["datasets"]:
                         incident_count = data[date]["datasets"][call_type]
@@ -387,6 +391,8 @@ class NeighborhoodTrends(View):
                 "min": min(total_incidents),
                 "max": max(total_incidents)
             }
+
+            # Data required to create a line chart for total incidents
             total_incidents = {
                 "data": total_incidents,
                 "type": "line",
@@ -398,6 +404,7 @@ class NeighborhoodTrends(View):
             }
             response_data["datasets"].insert(0, total_incidents)
 
+            # Return the JSON data
             response = JsonResponse(
                 {
                     'status': 'true',
@@ -422,6 +429,7 @@ def get_colors(amount, opacity):
     @param amount: The number of colors to return (currently a max of 11).
     @return: an Array of rgba colors to chart background colors.
     """
+    # Available rgba colors with formattable strings for opacity
     colors = [
         'rgba(227, 26, 28, {0})',
         'rgba(31, 120, 180, {0})',

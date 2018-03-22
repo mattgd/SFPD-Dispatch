@@ -1,8 +1,8 @@
 /**
  * Creates a data table row using the provided call and columns.
- * @param {*} call The call to extract data from.
- * @param {*} cols The table columns to fill.
- * @param {*} highlightCol The column to check for highlighting.
+ * @param {Object} call The call to extract data from.
+ * @param {string[]} cols The table columns to fill.
+ * @param {number} highlightCol The column to check for highlighting.
  */
 function createTableDataRow(call, cols, highlightCol = undefined) {
     var context = '<tr>';
@@ -31,10 +31,10 @@ function createTableDataRow(call, cols, highlightCol = undefined) {
 
 /**
  * Load table data for the provided tableSelector.
- * @param {*} tableSelector The jQuery selector object.
- * @param {*} data The data to put in the table.
- * @param {*} cols The table columns to fill.
- * @param {*} highlightCol The column to check for highlighting.
+ * @param {Object} tableSelector The jQuery selector object.
+ * @param {Object} data The data to put in the table.
+ * @param {string[]} cols The table columns to fill.
+ * @param {number} highlightCol The column to check for highlighting.
  */
 function loadTableData(tableSelector, data, cols, highlightCol) {
     if (tableSelector === undefined) {
@@ -58,7 +58,7 @@ function loadTableData(tableSelector, data, cols, highlightCol) {
 
 /**
  * Returns the standard sorter options.
- * @param {*} sortList The sortList setting for the specific table.
+ * @param {Object} sortList The sortList setting for the specific table.
  */
 function getSorterOptions(sortList) {
     return {
@@ -66,14 +66,14 @@ function getSorterOptions(sortList) {
         widthFixed : true,
         widgets: ['filter', 'zebra'],
         widgetOptions: {
-            filter_cssFilter: 'form-control'
+            filter_cssFilter: 'form-control form-control-sm'
         }
     };
 }
 
 /**
  * Returns the pager options for the specified container selector.
- * @param {*} pagerContainer The jQuery selector for the pager container.
+ * @param {Object} pagerContainer The jQuery selector for the pager container.
  */
 function getPagerOptions(pagerContainer) {
     return {

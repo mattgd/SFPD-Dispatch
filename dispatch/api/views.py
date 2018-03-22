@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db.models import Avg, Count, TimeField, F
-from django.db.models.functions import Cast, TruncDate
+from django.db.models import Avg, Count, F
 from metrics.models import Call
 from geopy.geocoders import Nominatim
 from django.contrib.gis import geos
@@ -16,10 +15,13 @@ class NearbyView(View):
         Format the time accepting multiple formats.
         Returns the parsed datetime if valid and raise a ValueError if invalid.
         """
+        # List of acceptable time formats
         valid_formats = [
             '%H:%M:%S %p', '%H:%M:%S', '%H:%M %p', '%H:%M', '%H %p', '%H'
         ]
 
+        # Iterate through each of the formats and try to parse the date string
+        # into a datetime object.
         for fmt in valid_formats:
             try:
                 return datetime.strptime(text, fmt)
@@ -94,9 +96,7 @@ class NearbyView(View):
                         point__distance_lte=(
                             source_location, D(**desired_radius)
                         )
-                    ).values(
-                        'unit_type'
-                    ).annotate(
+                    ).values('unit_type').annotate(
                         count=Count('unit_type')
                     ).order_by('-count')
 
@@ -290,7 +290,7 @@ class Battalions(View):
 
     def get(self, request):
         """
-        Returns JSON representing a list of the neighborhoods/districts.
+        Returns JSON representing a list of battalions.
         """
         # Gets list of battalions
         battalions = Call.objects.values('battalion').distinct().order_by('battalion')
