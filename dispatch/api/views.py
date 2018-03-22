@@ -39,6 +39,10 @@ class NearbyView(View):
 
         # Check if an address was provided
         if address:
+            # Append city and state if only address line provided
+            if ',' and 'San Francisco' not in address:
+                address += ', San Francisco, CA'
+
             # Get location from address
             geolocator = Nominatim(scheme='http')
             location = geolocator.geocode(address)
@@ -95,6 +99,17 @@ class NearbyView(View):
                     ).annotate(
                         count=Count('unit_type')
                     ).order_by('-count')
+
+                    # Check if calls found calls found
+                    if not nearby_calls:
+                        # No calls found, 400 Bad Request
+                        return JsonResponse(
+                            {
+                                'status': 'false',
+                                'message': 'No data found for given address.'
+                            },
+                            status=400
+                        )
                     
                     # Create the results data
                     max_type = nearby_calls[0]["unit_type"] if nearby_calls[0] else None
