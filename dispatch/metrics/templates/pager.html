@@ -1,15 +1,15 @@
-<div id="pager" class="pager">
+<div id="{{ pager }}" class="pager">
     <form>
-        <button class="btn btn-dark btn-sm first">&laquo; First</button>
-        <button class="btn btn-dark btn-sm prev">&lsaquo; Previous</button>
-        <span class="page-display"></span>
-        <button class="btn btn-dark btn-sm next">Next &rsaquo;</button>
-        <button class="btn btn-dark btn-sm last">Last &raquo;</button>
+        <span class="btn btn-dark btn-sm first">&laquo; First</span>
+        <span class="btn btn-dark btn-sm prev">&lsaquo; Previous</span>
+        <span class="pagedisplay"></span>
+        <span class="btn btn-dark btn-sm next">Next &rsaquo;</span>
+        <span class="btn btn-dark btn-sm last">Last &raquo;</span>
         <label>
             Number of rows:
-            <select class="form-control form-control-sm custom-select page-size">
+            <select class="form-control form-control-sm custom-select pagesize">
                 <option value="10">10</option>
-                <option value="15" selected>15</option>
+                <option value="15" selected="selected">15</option>
                 <option value="20">20</option>
                 <option value="30">30</option>
                 <option value="all">All Rows</option>

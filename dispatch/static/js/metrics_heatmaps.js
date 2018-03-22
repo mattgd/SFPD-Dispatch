@@ -31,15 +31,14 @@ function initHeatmaps() {
 
             // Setup pagination for the average dispatch time table
             // The columns in the table
+            var table = $('#dispatchTimeTable');
             var cols = ['address', 'avg_dispatch_time', 'count', 'incident_count'];
-            loadTableData($('#dispatchTimeTable'), data, cols, 'incident_count');
+            loadTableData(table, data, cols, 'incident_count');
 
             // Setup table sorting
-            $('#dispatchTimeTable').tablesorter(
-                { sortList: [[1,1]] }
-            ).tablesorterPager(
-                { container: '#dispatchTimeTableContainer' }
-            ); 
+            table.tablesorter(
+                getSorterOptions([[1,1]])
+            ).tablesorterPager(getPagerOptions($('#dispatchTimeTablePager')));
         },
         error: function(resp) {
             console.error("An error occured when retrieving longest dispatch data.");
@@ -60,18 +59,17 @@ function initHeatmaps() {
 
             // Setup pagination for the dispatch call address frequency table
             // The columns in the table
+            var table = $('#addressFreqTable');
             var cols = ['address', 'count'];
-            loadTableData($('#addressFreqTable'), data, cols);
+            loadTableData(table, data, cols);
 
             // Setup table sorting
-            $('#addressFreqTable').tablesorter(
-                { sortList: [[1,0]] }
-            ).tablesorterPager(
-                { container: '#addressFreqTableContainer' }
-            ); 
+            table.tablesorter(
+                getSorterOptions([[1,1]])
+            ).tablesorterPager(getPagerOptions($('#addressFreqTablePager'))); 
         },
         error: function(resp) {
-            console.error("An error occured when retrieving longest dispatch data.");
+            console.error("An error occured when retrieving address frequency data.");
         }
     });
 }

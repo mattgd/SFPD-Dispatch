@@ -92,9 +92,6 @@
 {% load static %}
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{% static 'js/Chart.bundle.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/chart_utils.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/metrics_charts.js' %}"></script>
 <script>
 $("#dispatchTypeForm").submit(function(e) {
     var endpoint = '/api/calls/nearby';

@@ -55,3 +55,30 @@ function loadTableData(tableSelector, data, cols, highlightCol) {
     // Inject the HTML
     tableSelector.find('tbody').html(htmlContent);
 }
+
+/**
+ * Returns the standard sorter options.
+ * @param {*} sortList The sortList setting for the specific table.
+ */
+function getSorterOptions(sortList) {
+    return {
+        sortList: sortList,
+        widthFixed : true,
+        widgets: ['filter', 'zebra'],
+        widgetOptions: {
+            filter_cssFilter: 'form-control'
+        }
+    };
+}
+
+/**
+ * Returns the pager options for the specified container selector.
+ * @param {*} pagerContainer The jQuery selector for the pager container.
+ */
+function getPagerOptions(pagerContainer) {
+    return {
+        container: pagerContainer,
+        output: 'Page {page} of {filteredPages}',
+        size: 15
+    };
+}

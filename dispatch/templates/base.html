@@ -60,6 +60,9 @@
 
         <!-- Non load-essential scripts -->
         {% block scripts %}
+        {% for script in scripts %}
+        <script type="text/javascript" src="{% static script %}"></script>
+        {% endfor %}
         {% endblock %}
         <!-- End scripts -->
     </body>

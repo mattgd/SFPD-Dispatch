@@ -19,7 +19,14 @@ class Home(View):
     """
     def get(self, request, *args, **kwargs):
         # Render the page
-        return render(request, 'dispatch_metrics.html', {'title': 'Dispatch Metrics'})
+        return render(request, 'dispatch_metrics.html', {
+            'title': 'Dispatch Metrics',
+            'scripts': [
+                'js/Chart.bundle.min.js',
+                'js/chart_utils.js',
+                'js/metrics_charts.js'
+            ]
+        })
 
 class Heatmaps(View):
     """
@@ -27,7 +34,15 @@ class Heatmaps(View):
     """
     def get(self, request, *args, **kwargs):
         # Render the page
-        return render(request, 'heatmaps.html', {'title': 'Heatmaps'})
+        return render(request, 'heatmaps.html', {
+            'title': 'Heatmaps',
+            'scripts': [
+                'js/jquery.tablesorter.combined.min.js',
+                'js/jquery.tablesorter.pager.min.js',
+                'js/metrics_tables.js',
+                'js/metrics_heatmaps.js'
+            ]
+        })
 
 class IncidentMetrics(View):
     """
@@ -35,7 +50,17 @@ class IncidentMetrics(View):
     """
     def get(self, request, *args, **kwargs):
         # Render the page
-        return render(request, 'incident_metrics.html', {'title': 'Incident Metrics'})
+        return render(request, 'incident_metrics.html', {
+            'title': 'Incident Metrics',
+            'scripts': [
+                'js/Chart.bundle.min.js',
+                'js/chart_utils.js',
+                'js/jquery.tablesorter.combined.min.js',
+                'js/jquery.tablesorter.pager.min.js',
+                'js/metrics_tables.js',
+                'js/incident_charts.js'
+            ]
+        })
 
 class AverageResponseTime(View):
     """

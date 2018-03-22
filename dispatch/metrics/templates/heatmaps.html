@@ -51,8 +51,8 @@
             <table class="table table-striped tablesorter" id="dispatchTimeTable">
                 <thead>
                     <tr>
-                        <th>Address</th>
-                        <th>Avg. Dispatch Time (h:mm:ss)</th>
+                        <th data-placeholder="Filter by address...">Address</th>
+                        <th data-placeholder="Filter by time...">Avg. Dispatch Time (h:mm:ss)</th>
                         <th># of Calls</th>
                         <th># of Incidents</th>
                     </tr>
@@ -62,7 +62,7 @@
             </table>
 
             <!-- Pager -->
-            {% include 'pager.html' %}
+            {% include 'pager.html' with pager="dispatchTimeTablePager" %}
         </div> 
     </div>
 </div>
@@ -80,13 +80,18 @@
 <div class="row">
     <div class="col-sm section-card">
         <h3>Addresses with the Most Calls Dispatched</h3>
+        <p>
+            Addresses with large numbers of calls dispatched may be areas
+            where more services should be stationed to focus on emergency
+            prevention.
+        </p>
 
         <div class="table-responsive" id="addressFreqTableContainer">
             <table class="table table-striped tablesorter" id="addressFreqTable">
                 <thead>
                     <tr>
-                        <th>Address</th>
-                        <th>Number of Calls</th>
+                        <th data-placeholder="Filter by address...">Address</th>
+                        <th data-placeholder="Filter by calls...">Number of Calls</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,20 +100,16 @@
         </div>
 
         <!-- Pager -->
-        {% include 'pager.html' %}
+        {% include 'pager.html' with pager="addressFreqTablePager" %}
     </div>
 </div>
 {% endblock %}
 
 {% load static %}
 {% block scripts %}
-{{ block.super }}
-<script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/jquery.tablesorter.pager.js' %}"></script>
 <script>
-var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
+    var dispatchTimeMap, dispatchTimeHeatmap, addressFreqMap, addressFreqHeatmap;
 </script>
-<script src="{% static 'js/metrics_heatmaps.js' %}"></script>
+{{ block.super }}
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtE4eEKHGGOqQ7i6ewAeiaQ_TFQkydCfk&libraries=visualization&callback=initHeatmaps"></script>
 {% endblock %}

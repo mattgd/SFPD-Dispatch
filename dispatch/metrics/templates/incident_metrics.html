@@ -74,9 +74,9 @@
             <table class="table table-striped tablesorter" id="incidentTable">
                 <thead>
                     <tr>
-                        <th>Neighborhood</th>
-                        <th>Number of Incidents</th>
-                        <th>Number of Calls</th>
+                        <th data-placeholder="Filter by neighborhood...">Neighborhood</th>
+                        <th data-placeholder="Filter by incidents...">Number of Incidents</th>
+                        <th data-placeholder="Filter by calls...">Number of Calls</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,7 +84,7 @@
             </table>
             
             <!-- Pager -->
-            {% include 'pager.html' %}
+            {% include 'pager.html' with pager="incidentTablePager" %}
         </div>
     </div>
     <!-- End Safest Neighborhoods by Number of Calls table section -->
@@ -94,13 +94,6 @@
 {% load static %}
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{% static 'js/Chart.bundle.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/chart_utils.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/incident_charts.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/pagination.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/metrics_tables.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/jquery.tablesorter.pager.js' %}"></script>
 <script type="text/javascript">
 /**
  * Initializes the incident tables.
@@ -120,10 +113,8 @@ function initIncidentTables() {
 
             // Setup table sorting
             $('#incidentTable').tablesorter(
-                { sortList: [[1,0]] }
-            ).tablesorterPager(
-                { container: '#incidentTableContainer' }
-            ); 
+                getSorterOptions([[1,0]])
+            ).tablesorterPager(getPagerOptions($('#incidentTablePager')));
         },
         error: function(resp) {
             console.error("An error occured when retrieving safest neighborhoods data.");

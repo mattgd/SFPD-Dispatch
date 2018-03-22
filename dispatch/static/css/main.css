@@ -111,17 +111,6 @@ table.table thead tr td {
     font-size: 1em;
 }
 
-/* Pager styling */
-.pager select.form-control {
-    width: unset;
-}
-.pager label {
-    margin: .5rem;
-}
-.page-display {
-    margin: 10px;
-}
-
 /* Tablesorter Styling */
 .tablesorter .header,
 .tablesorter .tablesorter-header {
@@ -147,4 +136,17 @@ table.table thead tr td {
 	background-image: none;
 	cursor: default;
 	padding: 4px;
+}
+.tablesorter .filtered {
+    display: none;
+}
+/* Pager styling */
+.pager select.form-control {
+    width: unset;
+}
+.pager label {
+    margin: .5rem;
+}
+.pagedisplay {
+    margin: 10px;
 }
