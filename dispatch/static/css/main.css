@@ -18,7 +18,7 @@ header {
     padding-top: 25px;
     color: #FFF;
     border-bottom: 3px solid #DEDEDE;
-    background: url(/static/images/header.png);
+    background: url(/static/images/header-min.png);
     background-size: cover;
     background-position: center;
 }

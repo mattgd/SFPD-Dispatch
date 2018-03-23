@@ -23,11 +23,11 @@
 <div class="row">
     <div class="col-sm section-card">
         <h3>Addresses with the Longest Average Dispatch Time</h3>
+        <h4>How the Data is Aggregated</h4>
         <p>
-            <b>How the data is aggregated:</b> a count for the number of times 
-            each unique location appears in the data is calculated along with the 
-            average duration of time between when the call was received and when
-            a unit was dispatched.
+            A count for the number of times each unique location appears in the
+            data is calculated along with the average duration of time between
+            when the call was received and when a unit was dispatched.
         </p>
         <p>
             Addresses with more than a few incidents are highlighted in yellow
@@ -45,6 +45,22 @@
         <p>
             Additional units that are trained in responding to Trail/Rail Incidents
             may reduce the response time significantly.
+        </p>
+
+        <h4>Reducing Average Dispatch Time Thoughout the City</h4>
+        <p>
+            The <a href="{% url 'incident-metrics' %}">Incident Metrics page</a>
+            shows that there are some neighborhoods that experience very few
+            incidents, while others average 40-50 calls per day.
+        </p>
+        <p>
+            In order to reduce dispatch time overall throughout the city, battalions
+            servicing neighborhoods which receive very few calls could be given wider
+            patrol areas, and battalions currently services areas with high
+            incident counts could be given more concentrated patrol areas. This
+            would reduce the resource strain on battalions working in areas
+            with large numbers of calls, and in turn reduce the average dispatch
+            time for these areas.
         </p>
 
         <div class="table-responsive" id="dispatchTimeTableContainer">
